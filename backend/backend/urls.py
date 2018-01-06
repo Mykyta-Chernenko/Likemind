@@ -17,14 +17,16 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
 
-from users.views import UserViewSet, ObtainAuthToken
+from users.views import ObtainAuthToken, UserView, activate_account
+from rest_framework_swagger.views import get_swagger_view
 
-router = routers.SimpleRouter()
-router.register(r'users', UserViewSet)
-
+schema_view = get_swagger_view(title='Pastebin API')
 
 urlpatterns = [
     url(r'^api/obtain-auth-token/$', ObtainAuthToken.as_view()),
-    url(r'^api/', include(router.urls)),
+    url(r'^api/users/$', UserView.as_view(), name='user-list'),
+    url(r'^ai/users/?P<pk>[0-9]+/$', UserView.as_view(), name='user-detail'),
+    url(r'^activate_account/(?P<activate_link>.+)/$', activate_account, name='activate-account'),
     url(r'^admin/', admin.site.urls),
+    url(r'^sw', schema_view)
 ]
