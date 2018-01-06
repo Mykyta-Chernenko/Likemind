@@ -1,30 +1,35 @@
 {
-  "name": "frontend",
+  "name": "client",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "prop-types": "^15.5.10",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
-    "react-redux": "^5.0.3",
-    "react-router-dom": "^4.0.0-beta.8",
-    "redux": "^3.6.0",
-    "redux-logger": "^3.0.1",
-    "redux-thunk": "^2.2.0"
-  },
-  "devDependencies": {
-    "react-scripts": "0.9.5",
-    "node-sass-chokidar": "0.0.1",
-    "npm-run-all": "^4.0.2"
+    "material-ui": "^0.20.0",
+   
+    "npm-run-all": "^4.1.2",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-redux": "^4.0.6",
+    "react-router": "^3.2.0",
+    "react-router-redux": "^4.0.8",
+    "react-scripts": "1.0.17",
+    "redux": "^3.3.1",
+    "redux-form": "^7.2.0",
+    "redux-logger": "2.5.2",
+    "redux-thunk": "1.0.3"
   },
   "scripts": {
     "start": "npm-run-all -p watch-css start-js",
-    "build": "npm run build-css && react-scripts build",
+    "build": "npm-run-all build-css build-js",
+    "start-js": "react-scripts start",
+    "build-js": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "start-js": "PORT=3000 react-scripts start",
     "build-css": "node-sass-chokidar src/ -o src/",
     "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive"
   },
-  "proxy": "http://backend:8000"
+  "proxy": "http://backend:8000",
+  "devDependencies": {
+    "redux-devtools-extension": "^2.13.2",
+    "node-sass-chokidar": "0.0.3"
+  }
 }
