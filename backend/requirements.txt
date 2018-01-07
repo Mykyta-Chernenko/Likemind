@@ -1,4 +1,4 @@
 Django==1.11.1
 djangorestframework==3.5.4
 django-rest-swagger==2.1.2
-django-registration==2.3
+simple-crypt==4.1.7

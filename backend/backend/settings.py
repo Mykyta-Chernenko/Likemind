@@ -140,7 +140,7 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = 'users.Person'
 
-PUBLIC_KEY_PERSON_ID = 'mindlike'
+PUBLIC_KEY_PERSON_ID = b'ZXU9GQm_kWYENeWK57BpfjHgiuRFQwFoZm6WoHyspIw='
 
 DOMAIN = '0.0.0.0:8000' # Site domain
 

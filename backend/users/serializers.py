@@ -3,8 +3,9 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
 from backend.settings import PUBLIC_KEY_PERSON_ID, DOMAIN
-from users.encoding import encode
+from cryptography.fernet import Fernet
 from .models import Person
+import base64
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -33,12 +34,16 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+
         user = super(UserSerializer, self).create(validated_data)
         user.set_password(validated_data['password'])
         user.is_active = False
         user.save()
-        user_decoded_id = encode(PUBLIC_KEY_PERSON_ID, str(user.id))
+        cryption = Fernet(PUBLIC_KEY_PERSON_ID)
+        user_decoded_id = cryption.encrypt(str(user.id).encode('utf-8')).decode('utf-8')
         url = f'{DOMAIN}/activate_account/{user_decoded_id}'
-        send_mail(message=f'Перейдите по ссылке ниже, чтобы активировать свой аккаунт в LikeMind\n{url}', from_email='LikeMind',
-                  subject='Подтверждение регистрации', recipient_list=[user.email], html_message=f'\n<a href="{url}">activate {url}</a>')
+        send_mail(message=f'Перейдите по ссылке ниже, чтобы активировать свой аккаунт в LikeMind\n{url}',
+                  from_email='LikeMind',
+                  subject='Подтверждение регистрации', recipient_list=[user.email],
+                  html_message=f'\n<a href="{url}">activate {url}</a>')
         return user

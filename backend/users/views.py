@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.reverse import reverse
-
+from cryptography.fernet import Fernet
 from users.encoding import decode
 from backend.settings import PUBLIC_KEY_PERSON_ID
 from .models import Person
@@ -16,7 +16,8 @@ from .serializers import CreateUserSerializer, UserSerializer
 
 
 def activate_account(request, activate_link):
-    id = decode(PUBLIC_KEY_PERSON_ID, activate_link)
+    cryption = Fernet(PUBLIC_KEY_PERSON_ID)
+    id = cryption.decrypt(activate_link.encode('utf-8')).decode('utf-8')
     person = get_object_or_404(Person, id=id)
     person.is_active = True
     person.save()
