@@ -41,12 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # 3rd party apps
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_swagger',
 
-    # slm apps
     'users',
 ]
 
@@ -133,7 +130,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
-    )
+    ),
 }
 
 # Custom AUTH
@@ -142,7 +139,7 @@ AUTH_USER_MODEL = 'users.Person'
 
 PUBLIC_KEY_PERSON_ID = b'ZXU9GQm_kWYENeWK57BpfjHgiuRFQwFoZm6WoHyspIw='
 
-DOMAIN = '0.0.0.0:8000' # Site domain
+DOMAIN = '0.0.0.0:8000'  # Site domain
 
 ACCOUNT_ACTIVATION_DAYS = 7
 EMAIL_HOST = 'smtp.gmail.com'

@@ -46,4 +46,5 @@ class UserSerializer(serializers.ModelSerializer):
                   from_email='LikeMind',
                   subject='Подтверждение регистрации', recipient_list=[user.email],
                   html_message=f'\n<a href="{url}">activate {url}</a>')
+        print('send mail')
         return user

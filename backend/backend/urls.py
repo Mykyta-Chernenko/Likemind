@@ -16,17 +16,17 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
+from rest_framework.documentation import include_docs_urls
 
-from users.views import ObtainAuthToken, UserView, activate_account
-from rest_framework_swagger.views import get_swagger_view
+from users.views import ObtainAuthToken, activate_account, UserDetailView, UserListView
 
-schema_view = get_swagger_view(title='Pastebin API')
+
 
 urlpatterns = [
     url(r'^api/obtain-auth-token/$', ObtainAuthToken.as_view()),
-    url(r'^api/users/$', UserView.as_view(), name='user-list'),
-    url(r'^ai/users/?P<pk>[0-9]+/$', UserView.as_view(), name='user-detail'),
+    url(r'^api/users/$', UserListView.as_view(), name='user-list'),
+    url(r'^api/users/?P<pk>[0-9]+/$', UserDetailView.as_view(), name='user-detail'),
     url(r'^activate_account/(?P<activate_link>.+)/$', activate_account, name='activate-account'),
     url(r'^admin/', admin.site.urls),
-    url(r'^sw', schema_view)
+    url(r'^docs/', include_docs_urls(title='LikeMind API'))
 ]
