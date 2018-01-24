@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
+    'channels',
 
     'users',
 ]
@@ -148,3 +149,13 @@ EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = 'marakaci1996@gmail.com'
 EMAIL_HOST_PASSWORD = 'Nikita12'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+        "ROUTING": "chat.routing.channel_routing",
+    },
+}
