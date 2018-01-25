@@ -143,7 +143,7 @@ STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
     ),
 }
@@ -152,7 +152,7 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = 'users.Person'
 
-PUBLIC_KEY_PERSON_ID = os.environ['PUBLIC_KEY_PERSON_ID']
+PUBLIC_KEY_PERSON_ID = os.environ["PUBLIC_KEY_PERSON_ID"]
 DOMAIN = '0.0.0.0:8000'  # Site domain
 
 ACCOUNT_ACTIVATION_DAYS = 7

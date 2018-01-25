@@ -10,3 +10,4 @@ RUN pip install coreapi==2.3.3
 RUN pip install channels
 RUN pip install asgi_redis==1.4.3
 RUN pip install psycopg2==2.6
+RUN pip install djangorestframework-jwt

@@ -28,6 +28,7 @@ services:
     depends_on:
       - redis
       - postgres
+      - frontend
   frontend:
     build: frontend/
     command: npm run start
@@ -36,5 +37,4 @@ services:
       - /frontend/node_modules
     ports:
       - "3000:3000"
-    depends_on:
-      - backend
+
