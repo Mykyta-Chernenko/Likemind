@@ -1090,9 +1090,9 @@ Matches are regular expressions, so that you can use a regexp to match multiple 
 
 When setting up a WebSocket proxy, there are a some extra considerations to be aware of.
 
-If you’re using a WebSocket engine like [Socket.io](https://socket.io/), you must have a Socket.io server running that you can use as the proxy target. Socket.io will not work with a standard WebSocket server. Specifically, don't expect Socket.io to work with [the websocket.org echo test](http://websocket.org/echo.html).
+If you’re using a WebSocket engine like [Socket.io](https://chat_socket.io/), you must have a Socket.io server running that you can use as the proxy target. Socket.io will not work with a standard WebSocket server. Specifically, don't expect Socket.io to work with [the websocket.org echo test](http://websocket.org/echo.html).
 
-There’s some good documentation available for [setting up a Socket.io server](https://socket.io/docs/).
+There’s some good documentation available for [setting up a Socket.io server](https://chat_socket.io/docs/).
 
 Standard WebSockets **will** work with a standard WebSocket server as well as the websocket.org echo test. You can use libraries like [ws](https://github.com/websockets/ws) for the server, with [native WebSockets in the browser](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket).
 
@@ -1102,7 +1102,7 @@ Either way, you can proxy WebSocket requests manually in `package.json`:
 {
   // ...
   "proxy": {
-    "/socket": {
+    "/chat_socket": {
       // Your compatible WebSocket server
       "target": "ws://<socket_url>",
       // Tell http-proxy-middleware that this is a WebSocket proxy.

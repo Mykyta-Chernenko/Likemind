@@ -1,19 +1,22 @@
+from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from rest_framework import renderers
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404, GenericAPIView, CreateAPIView, UpdateAPIView, RetrieveAPIView, \
-    DestroyAPIView
+    DestroyAPIView, ListAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.reverse import reverse
 from cryptography.fernet import Fernet
+
 from users.encoding import decode
 from backend.settings import PUBLIC_KEY_PERSON_ID
-from .models import Person
-from .serializers import CreateUserSerializer, UserSerializer
+from .models import Person, Friend
+from .serializers import CreateUserSerializer, UserSerializer, FriendSerializer
 
 
 def activate_account(request, activate_link):
@@ -69,4 +72,15 @@ class UserDetailView(UpdateAPIView, RetrieveAPIView, DestroyAPIView):
     '''
     serializer_class = UserSerializer
     queryset = Person.objects.all()
-    http_method_names = ('put', 'get', 'delete')
+    http_method_names = ['put', 'get', 'delete']
+
+
+class FriendListView(CreateAPIView, ListAPIView):
+    serializer_class = FriendSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Friend.objects.all()
+    http_method_names = ['get', 'post']
+
+    def get_queryset(self):
+        person = self.request.user
+        return Friend.objects.filter(Q(first=person) | Q(second=person))

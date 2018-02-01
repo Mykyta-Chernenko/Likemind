@@ -15,19 +15,21 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.urls import path
 from rest_framework import routers
 from rest_framework.documentation import include_docs_urls
 
-from users.views import ObtainAuthToken, activate_account, UserDetailView, UserListView
+from chat.views import PrivateChatList
+from users.views import ObtainAuthToken, activate_account, UserDetailView, UserListView, FriendListView
 from rest_framework_jwt.views import obtain_jwt_token
 
-
-
 urlpatterns = [
-    url(r'^api/obtain-auth-token/$', obtain_jwt_token),
-    url(r'^api/users/$', UserListView.as_view(), name='user-list'),
-    url(r'^api/users/?P<pk>[0-9]+/$', UserDetailView.as_view(), name='user-detail'),
-    url(r'^activate_account/(?P<activate_link>.+)/$', activate_account, name='activate-account'),
-    url(r'^admin/', admin.site.urls),
-    url(r'^docs/', include_docs_urls(title='LikeMind API'))
+    path('api/obtain-auth-token/', obtain_jwt_token),
+    path('api/users/', UserListView.as_view(), name='user-list'),
+    path('api/users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
+    path('api/friends/', FriendListView.as_view(), name='friend-list'),
+    path('api/private_chats/', PrivateChatList.as_view(), name='private-chat-list'),
+    path('activate_account/<str:activate_link>/', activate_account, name='activate-account'),
+    path('admin/', admin.site.urls),
+    path('docs/', include_docs_urls(title='LikeMind API'))
 ]

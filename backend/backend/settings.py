@@ -9,10 +9,14 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-
+import datetime
 import os
+import redis
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+
+
+PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
@@ -42,15 +46,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
-    'rest_framework.authtoken',
     'channels',
+    'corsheaders',
 
     'users',
+    'chat'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -148,6 +154,8 @@ REST_FRAMEWORK = {
     ),
 }
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
 # Custom AUTH
 
 AUTH_USER_MODEL = 'users.Person'
@@ -161,14 +169,26 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD =  os.environ['EMAIL_HOST_PASSWORD']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "asgi_redis.RedisChannelLayer",
         "CONFIG": {
             "hosts": [("redis", 6379)],
+            "group_expiry": 60 * 60,
         },
         "ROUTING": "chat.routing.channel_routing",
+
     },
 }
+JWT_AUTH = {
+    'JWT_VERIFY_EXPIRATION': False  # change in production
+}
+FIXTURE_DIRS = (
+    os.path.join(PROJECT_DIR, 'fixtures'),
+)
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+_redis = redis.Redis(host='redis', port=6379, db=1)

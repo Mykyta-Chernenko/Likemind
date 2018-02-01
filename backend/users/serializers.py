@@ -1,10 +1,11 @@
 from django.core.mail import send_mail
 from rest_framework import serializers
-from rest_framework.authtoken.models import Token
 
 from backend.settings import PUBLIC_KEY_PERSON_ID, DOMAIN
 from cryptography.fernet import Fernet
-from .models import Person
+
+from chat.models import PrivateMessage
+from .models import Person, Friend
 import base64
 
 
@@ -21,11 +22,20 @@ class CreateUserSerializer(serializers.ModelSerializer):
         user = super(CreateUserSerializer, self).create(validated_data)
         user.set_password(validated_data['password'])
         user.save()
-        Token.objects.create(user=user)
         return user
 
 
-class UserSerializer(serializers.ModelSerializer):
+class FollowerSerializer(serializers.ModelSerializer):
+    friends = serializers.CharField(source='person__friends')
+
+    class Meta:
+        model = Person
+        fields = ('username',)
+
+
+
+
+class NestedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
         fields = ('id', 'email', 'username', 'first_name', 'last_name', 'password')
@@ -33,8 +43,16 @@ class UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True}
         }
 
-    def create(self, validated_data):
 
+class UserSerializer(serializers.ModelSerializer):
+    friends = NestedUserSerializer(many=True)
+
+    class Meta(NestedUserSerializer.Meta):
+        fields = NestedUserSerializer.Meta.fields + ('friends',)
+
+        depth = 2
+
+    def create(self, validated_data):
         user = super(UserSerializer, self).create(validated_data)
         user.set_password(validated_data['password'])
         user.is_active = False
@@ -48,3 +66,15 @@ class UserSerializer(serializers.ModelSerializer):
                   html_message=f'\n<a href="{url}">activate {url}</a>')
         print('send mail')
         return user
+
+
+class FriendSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Friend
+        fields = ['first', 'second']
+        depth = 1
+
+class PrivateMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PrivateMessage
+        fields = ['first']
