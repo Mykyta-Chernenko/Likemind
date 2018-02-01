@@ -1,8 +1,6 @@
 import React, {Component} from 'react'
-import {Link} from 'react-router'
 
-
-class Main extends Component {
+class Chat extends Component {
     constructor(props) {
         super(props);
         this.sendMessage = this.sendMessage.bind(this);
@@ -53,11 +51,7 @@ class Main extends Component {
             backgroundColor: 'grey',
             listStyle: 'none',
         };
-        return <div>
-            <ul>
-                <li><Link to="/">root</Link></li>
-                <li><Link to="/main">main</Link></li>
-            </ul>
+        return (<div>
             <input value={this.state.message} onChange={this.handleInputChange}></input>
             <button onClick={this.sendMessage}>Send message</button>
             <ul style={divStyle}>
@@ -73,8 +67,9 @@ class Main extends Component {
             </ul>
             {this.props.children}
         </div>
+        )
 
     }
 }
 
-export default Main;
+export default Chat;

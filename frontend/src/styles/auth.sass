@@ -1,0 +1,60 @@
+$main_color: #6675df
+$name: transit
+.tabs
+  border-bottom: 1px solid #ccc
+  margin-bottom: 35px
+
+.tab
+  padding-bottom: 5px
+  margin-bottom: -1px
+  border-bottom: 1px solid transparent
+  color: #ccc
+  font-family: Montserrat-Regular
+  cursor: pointer
+  user-select: none
+  transition: all .4s
+  &:hover
+      color: #000
+      border-bottom: 1px solid black
+
+=keyframes($name)
+  @-webkit-keyframes #{$name}
+    @content
+  @-moz-keyframes #{$name}
+    @content
+  @-ms-keyframes #{$name}
+    @content
+  @keyframes #{$name}
+    @content
+
++keyframes(form-move)
+    0%
+      opacity: 0
+      margin-left: -400px
+    100%
+      opacity: 1
+      margin-left: 0
+
+@mixin animation ($delay, $duration, $animation)
+    -webkit-animation-delay: $delay 
+    -webkit-animation-duration: $duration 
+    -webkit-animation-name: $animation 
+    -webkit-animation-fill-mode: forwards
+
+    -moz-animation-delay: $delay 
+    -moz-animation-duration: $duration 
+    -moz-animation-name: $animation 
+    -moz-animation-fill-mode: forwards
+
+    animation-delay: $delay 
+    animation-duration: $duration 
+    animation-name: $animation 
+    animation-fill-mode: forwards
+
+.wrap-input100
+  margin-left: -400px
+  @include animation(0s,0.6s, form-move)
+
+.active
+  color: #000
+  border-bottom: 1px solid black
