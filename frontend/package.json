@@ -3,8 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+<<<<<<< HEAD
     "antd": "^3.1.4",
     "axios": "^0.17.1",
+=======
+    "axios": "^0.17.1",
+    "material-ui": "^0.20.0",
+>>>>>>> d480c5680ff97b1bc35946cae0ab385387cae1a5
     "npm-run-all": "^4.1.2",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
