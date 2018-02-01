@@ -1,13 +1,6 @@
 import React, {Component} from 'react'
-<<<<<<< HEAD:frontend/src/components/ChatTest/index.js
-
-class Chat extends Component {
-=======
-import {Link} from 'react-router'
 import axios from 'axios'
-
-class Main extends Component {
->>>>>>> d480c5680ff97b1bc35946cae0ab385387cae1a5:frontend/src/containers/Menu.js
+class Chat extends Component {
     constructor(props) {
         super(props);
         this.sendMessage = this.sendMessage.bind(this);
@@ -115,27 +108,9 @@ class Main extends Component {
             backgroundColor: 'grey',
             listStyle: 'none',
         };
-<<<<<<< HEAD:frontend/src/components/ChatTest/index.js
         return (<div>
             <input value={this.state.message} onChange={this.handleInputChange}></input>
             <button onClick={this.sendMessage}>Send message</button>
-=======
-        return <div>
-            {/*<ul>*/}
-            {/*<li><Link to="/">root</Link></li>*/}
-            {/*<li><Link to="/main">main</Link></li>*/}
-            {/*</ul>*/}
-            <ul>
-                Friends:
-                {this.state.friends.map(
-                    (value) =>
-                        <li key={value.id} id={value.id} data-username={value.username} onClick={this.startChat}>
-                            {value.username}
-                        </li>
-                )}
-            </ul>
-            <p>You {this.state.username} are speaking with {this.state.interlocuter}</p>
->>>>>>> d480c5680ff97b1bc35946cae0ab385387cae1a5:frontend/src/containers/Menu.js
             <ul style={divStyle}>
                 {this.state.messages.map(
                     (value, key) =>
