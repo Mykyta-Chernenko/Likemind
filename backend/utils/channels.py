@@ -133,8 +133,11 @@ def rest_auth(func):
         message.user, message.auth, message.channel_session['token'] = user, auth, auth_token
         # Make sure there's a session key
         # Run the consumer
-        result = func(message, *args, **kwargs)
-        return result
+        if not user or not  auth or not  auth_token:
+            message.reply_channel.send({'accept': False})
+        else:
+            result = func(message, *args, **kwargs)
+            return result
 
     return inner
 

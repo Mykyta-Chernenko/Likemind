@@ -6,7 +6,7 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404, GenericAPIView, CreateAPIView, UpdateAPIView, RetrieveAPIView, \
     DestroyAPIView, ListAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -32,6 +32,7 @@ class ObtainAuthToken(GenericAPIView):
     renderer_classes = (renderers.JSONRenderer,)
     serializer_class = AuthTokenSerializer
     http_method_names = ('post',)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -75,9 +76,31 @@ class UserDetailView(UpdateAPIView, RetrieveAPIView, DestroyAPIView):
     http_method_names = ['put', 'get', 'delete']
 
 
+
+
+class SelfUserDetailView(UpdateAPIView, RetrieveAPIView, DestroyAPIView):
+    '''
+    Operates the user tha is taken from JWT token
+    put:
+    Update a person's info
+
+    delete:
+    Delete a person
+
+    get:
+    Get a person
+    '''
+    serializer_class = UserSerializer
+    queryset = Person.objects.all()
+    http_method_names = ['put', 'get', 'delete']
+
+    def get_object(self):
+        self.kwargs['pk'] = self.request.user.pk
+        return super(SelfUserDetailView, self).get_object()
+
+
 class FriendListView(CreateAPIView, ListAPIView):
     serializer_class = FriendSerializer
-    permission_classes = [IsAuthenticated]
     queryset = Friend.objects.all()
     http_method_names = ['get', 'post']
 

@@ -12,3 +12,4 @@ RUN pip install asgi_redis==1.4.3
 RUN pip install psycopg2==2.6
 RUN pip install djangorestframework-jwt
 RUN pip install django-cors-headers
+RUN pip install djangorestframework-queryfields

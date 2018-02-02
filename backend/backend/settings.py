@@ -152,6 +152,12 @@ REST_FRAMEWORK = {
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+
+        # 'rest_framework.permissions.AllowAny',
+        # Debugging
+        'rest_framework.permissions.IsAuthenticated',
+    )
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'

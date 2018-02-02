@@ -1,4 +1,5 @@
 import json
+from collections import OrderedDict
 
 from rest_framework import serializers
 
@@ -15,10 +16,12 @@ class PrivateChatSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         serialized = super(PrivateChatSerializer, self).to_representation(instance)
-        last_message = r.hget(f'{PRIVATE_CHAT}_{instance.id}_{LAST_MESSAGE}', 'text')
-        if last_message:
-            last_message = last_message.decode('utf-8')
-        else:
-            last_message = 'no messages yet'
-        serialized['last_message'] = json.dumps(last_message)
-        return  serialized
+        redis_chat_last_message = f'{PRIVATE_CHAT}_{instance.id}_{LAST_MESSAGE}'
+        exist = r.exists(redis_chat_last_message)
+        last_message = {}
+        if exist:
+            last_message['text'] = r.hget(redis_chat_last_message, 'text').decode('utf-8')
+            last_message['time'] = r.hget(redis_chat_last_message, 'time').decode('utf-8')
+            last_message['user_id'] = r.hget(redis_chat_last_message, 'user_id').decode('utf-8')
+        serialized['last_message'] = OrderedDict(last_message)
+        return serialized

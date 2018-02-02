@@ -6,7 +6,7 @@ from cryptography.fernet import Fernet
 
 from chat.models import PrivateMessage
 from .models import Person, Friend
-import base64
+from drf_queryfields import QueryFieldsMixin
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -25,16 +25,6 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return user
 
 
-class FollowerSerializer(serializers.ModelSerializer):
-    friends = serializers.CharField(source='person__friends')
-
-    class Meta:
-        model = Person
-        fields = ('username',)
-
-
-
-
 class NestedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
@@ -44,12 +34,11 @@ class NestedUserSerializer(serializers.ModelSerializer):
         }
 
 
-class UserSerializer(serializers.ModelSerializer):
-    friends = NestedUserSerializer(many=True)
+class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
+    friends = NestedUserSerializer(many=True, required=False)
 
     class Meta(NestedUserSerializer.Meta):
         fields = NestedUserSerializer.Meta.fields + ('friends',)
-
         depth = 2
 
     def create(self, validated_data):
@@ -74,7 +63,8 @@ class FriendSerializer(serializers.ModelSerializer):
         fields = ['first', 'second']
         depth = 1
 
+
 class PrivateMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrivateMessage
-        fields = ['first']
+        fields = ['owner', 'text', 'chat', 'created_at', 'edited', 'edited_at']

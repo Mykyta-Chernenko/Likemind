@@ -1,5 +1,6 @@
 import datetime
 
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from users.models import Person
@@ -21,16 +22,39 @@ class AbstractMessage(models.Model):
             self.edited = True
 
 
+class AbstartPrivateMessage(AbstractMessage):
+    class Meta:
+        abstract = True
+
+
 class PrivateMessage(AbstractMessage):
     chat = models.ForeignKey('PrivateChat', on_delete=models.CASCADE, related_name='message_set')
 
+    def save(self, *args, **kwargs):
+        # TODO test it
+        if 'owner' in kwargs and 'chat' in kwargs:
+            pc = PrivateChat.objects.get(pk=kwargs['chat'])
+            if kwargs['owner'] not in pc.private_chat_first_set.values_list('id', flat=True) or \
+                    kwargs['owner'] not in pc.private_chat_second_set.values_list('id', flat=True):
+                raise ValidationError
+            super(PrivateMessage, self).save(*args, **kwargs)
 
-class EnctyptedMessage(AbstractMessage):
+
+class EncryptedPrivateMessage(AbstractMessage):
     chat = models.ForeignKey('EncryptedPrivateChat', on_delete=models.CASCADE, related_name='message_set')
 
     @property
     def should_delete(self):
         return self.created_at + self.chat.keep_time < datetime.datetime.now()
+
+    def save(self, *args, **kwargs):
+        # TODO test it
+        if 'owner' in kwargs and 'chat' in kwargs:
+            pc = PrivateChat.objects.get(pk=kwargs['chat'])
+            if kwargs['owner'] not in pc.encrypted_private_chat_first_set.values_list('id', flat=True) or \
+                    kwargs['owner'] not in pc.encrypted_private_chat_second_set.values_list('id', flat=True):
+                raise ValidationError
+            super(EncryptedPrivateMessage, self).save(*args, **kwargs)
 
 
 class GroupMessage(AbstractMessage):
