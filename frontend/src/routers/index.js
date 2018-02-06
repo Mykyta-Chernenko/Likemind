@@ -7,7 +7,7 @@ import { history } from '../store/history'
 
 import { Switch, Route, Redirect } from 'react-router'
 // import { PrivateRoute } from './PrivateRoute'
-import { Auth, Menu, Chat, TestChat, ChatWrapper } from '../components'
+import { Auth, Menu, Chat, ChatTest, ChatWrapper } from '../components'
 
 class Routes extends Component {
     render() {
@@ -15,7 +15,8 @@ class Routes extends Component {
             <ConnectedRouter history={history}>
                 <Switch>
                     <Route exact path='/' component={Auth}/>
-                    <Route path='/chat' component={TestChat}/>
+                    <Route path='/chat' component={Chat}/>
+                    <Route path='/chat-test' component={ChatTest}/>
                     <Route path='/chat-wrapper' component={ChatWrapper}/>
                     <Redirect to='/'/>
                 </Switch>

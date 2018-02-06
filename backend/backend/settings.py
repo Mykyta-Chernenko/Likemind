@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 import datetime
 import os
-import redis
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
@@ -179,15 +178,14 @@ EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [("redis", 6379)],
             "group_expiry": 60 * 60,
         },
-        "ROUTING": "chat.routing.channel_routing",
-
     },
 }
+ASGI_APPLICATION = "backend.routing.application"
 JWT_AUTH = {
     'JWT_VERIFY_EXPIRATION': False  # change in production
 }
@@ -197,4 +195,4 @@ FIXTURE_DIRS = (
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-_redis = redis.Redis(host='redis', port=6379, db=1)
+# _redis = redis.Redis(host='redis', port=6379, db=1)
