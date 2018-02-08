@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 import datetime
 import os
-
+import redis
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
 
@@ -195,4 +195,4 @@ FIXTURE_DIRS = (
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-# _redis = redis.Redis(host='redis', port=6379, db=1)
+_redis = redis.Redis(host='redis', port=6379, db=1)

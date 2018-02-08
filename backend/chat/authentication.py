@@ -36,8 +36,12 @@ class JWTAuthMiddleware:
     def __call__(self, scope):
         # Look up user from query string (you should also do things like
         qs = dict(parse_qsl(scope["query_string"].decode('utf-8')))
-        jwt_token = qs.get('token')
-        to_user_id = qs.get('to_user_id')
+        jwt_token = qs.pop('token')
+        if not jwt_token:
+            raise ValueError(
+                "No JWT token provided"
+            )
+            to_user_id = qs.get('to_user_id')
         try:
             payload = jwt_decode_handler(jwt_token)
         except jwt.ExpiredSignature:
@@ -49,8 +53,11 @@ class JWTAuthMiddleware:
         except jwt.InvalidTokenError:
             raise AuthenticationFailed()
         user = jwt_authentication.authenticate_credentials(payload)
+        if not user:
+            raise AuthenticationFailed()
         scope["user"] = user
-        scope["to_user"] = Person.objects.get(pk=to_user_id)
+        for key, value in qs.items():
+            scope[key] = value
         return self.inner(scope)
 
 

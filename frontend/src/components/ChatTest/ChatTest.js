@@ -11,24 +11,24 @@ export class ChatTest extends Component {
         this.startChat = this.startChat.bind(this);
         this.initializeSocketForChat = this.initializeSocketForChat.bind(this);
         let tokens = [[1, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6Ik5pa2l0YSIsImV4cCI6MTUxNzkyNzk1NywiZW1haWwiOiIifQ.LxVKI3UAooNxY5rrqzD4r1q_hmNazMUZZgfegp1FJis'],
-            [9, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMCwidXNlcm5hbWUiOiJEZW5pcyIsImV4cCI6MTUxNzkyNzk3NSwiZW1haWwiOiJuaWtpdGFAY29kZS1vbi5iZSJ9.022xUmXA_03OFUwc79amNtAQ_CcCTdas-g6Jw6NEATI'],
-            [10, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo5LCJ1c2VybmFtZSI6IkFydGVtIiwiZXhwIjoxNTE3OTI3OTkwLCJlbWFpbCI6Im5pa2l0YUBjb2RlLW9uLmJlIn0.CTVPRoKnZ8VOvevJLrsiri_B8eW5hao0FdlqQMSXPs8']];
+            [10, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMCwidXNlcm5hbWUiOiJEZW5pcyIsImV4cCI6MTUxODAwOTE4MSwiZW1haWwiOiJuaWtpdGFAY29kZS1vbi5iZSJ9.8yfo6ZQuDVhefVQYfIq6p-XgXJmu3cq9SbHJkThAW38'],
+            [9, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo5LCJ1c2VybmFtZSI6IkFydGVtIiwiZXhwIjoxNTE4MDA5MTYzLCJlbWFpbCI6Im5pa2l0YUBjb2RlLW9uLmJlIn0.IXUm3xON3rsPWxk51ANHS7l3MlHsAx9I6A39qoWQVTY']];
         let token = tokens[Math.round(Math.random() * 2)];
-        // let user_socket = new WebSocket('ws://0.0.0.0:8000/user?token=' + token[1]);
-        // user_socket.onopen = () => {
-        //     console.log("User chat_socket open");
-        // };
-        // user_socket.onmessage = (event) => {
-        //     console.log(JSON.parse(event.data)['text'])
-        //     this.setState({user_events: [...this.state.user_events, JSON.parse(event.data)['text']]})
-        //
-        // };
-        // user_socket.onclose = () => {
-        //     console.log('User chat_socket disconnected')
-        // };
-        // user_socket.onerror = (e) => {
-        //     console.log(e)
-        // };
+        let user_socket = new WebSocket('ws://0.0.0.0:8000/user/?token=' + token[1]);
+        user_socket.onopen = () => {
+            console.log("User chat_socket open");
+        };
+        user_socket.onmessage = (event) => {
+            console.log(JSON.parse(event.data)['text'])
+            this.setState({user_events: [...this.state.user_events, JSON.parse(event.data)['text']]})
+
+        };
+        user_socket.onclose = () => {
+            console.log('User chat_socket disconnected')
+        };
+        user_socket.onerror = (e) => {
+            console.log(e)
+        };
         this.state = {
             message: "",
             messages: [],
@@ -59,8 +59,7 @@ export class ChatTest extends Component {
 
     sendMessage() {
         console.log(this.state.message);
-        console.log(this.state.chat_socket);
-        this.state.chat_socket.send(this.state.message);
+        this.state.chat_socket.send(JSON.stringify(this.state.message));
     }
 
     handleResponse(value) {
@@ -70,8 +69,10 @@ export class ChatTest extends Component {
     handleInputChange(e) {
         this.setState({message: e.target.value})
     }
+
     initializeSocketForChat(id) {
         console.log('init ');
+        document.cookie = 'token=' + this.state.token[1]
         if (this.state.chat_socket) {
             this.state.chat_socket.close()
         }
@@ -82,6 +83,8 @@ export class ChatTest extends Component {
             console.log("Connected to chat chat_socket");
         };
         socket.onmessage = (event) => {
+            alert('sfd')
+            console.log(event)
             this.setState({messages: [...this.state.messages, JSON.parse(event.data)]})
 
         };
@@ -110,6 +113,7 @@ export class ChatTest extends Component {
             listStyle: 'none',
         };
         return (<div>
+                <p> you {this.state.username} are speaking with {this.state.interlocuter}</p>
                 <input value={this.state.message} onChange={this.handleInputChange}></input>
                 <button onClick={this.sendMessage}>Send message</button>
                 <ul style={divStyle}>
