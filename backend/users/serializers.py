@@ -64,7 +64,3 @@ class FriendSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-class PrivateMessageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PrivateMessage
-        fields = ['owner', 'text', 'chat', 'created_at', 'edited', 'edited_at']

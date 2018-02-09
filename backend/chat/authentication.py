@@ -41,7 +41,6 @@ class JWTAuthMiddleware:
             raise ValueError(
                 "No JWT token provided"
             )
-            to_user_id = qs.get('to_user_id')
         try:
             payload = jwt_decode_handler(jwt_token)
         except jwt.ExpiredSignature:
