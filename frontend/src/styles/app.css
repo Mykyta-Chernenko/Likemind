@@ -1,14 +1,24 @@
 @import url(main.css);
+#root {
+  width: 100%;
+  height: 100%; }
+
 .chat-display {
   display: flex;
   flex-direction: row;
-  width: 100%; }
+  width: 100%;
+  height: 100%; }
   .chat-display .all-chats {
     display: flex;
     flex-direction: column;
     background-color: white;
-    width: 20%; }
+    width: 20%;
+    height: 100%; }
+    .chat-display .all-chats .chat-title {
+      margin: 5px;
+      border-radius: 10px;
+      border: 2px solid black; }
   .chat-display .current-chat {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
     width: 80%; }

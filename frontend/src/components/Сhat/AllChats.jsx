@@ -12,13 +12,19 @@ export class AllChats extends Component {
         console.log(this.props.chats)
 
     }
+
+
     render() {
 
         const chats = this.state.chats.map((value, key) => {
-            return <ChatTitle key={key} chat={value}/>
+            return <ChatTitle key={value.last_message ? value.last_message.created_at : key} chat={value}
+                              ChooseChat={this.props.ChooseChat}/>
         });
-        return <ul className="chat">
-            {chats}
-        </ul>
+        return <div className='all-chats'>
+            <ul className="chat">
+                <li>{localStorage.getItem('user_id')}</li>
+                {chats}
+            </ul>
+        </div>
     }
 }

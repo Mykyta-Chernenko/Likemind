@@ -6,38 +6,51 @@ import {AllChats} from './AllChats'
 import axios from 'axios'
 import {Chat} from "./Chat";
 
+const TEXT_MESSAGE = 'text_message';
+
 export class ChatWrapper extends Component {
     constructor() {
         super();
         const auth_credits = [
-            // [nikita, 'q'],
-            // [artem, 'q'],
-            {'username': 'denis', 'password': 'q'}];
-        const auth = auth_credits[Math.round(Math.random() * 0)];
+            {'username': 'denis', 'password': 'q'},
+            {'username': 'nikita', 'password': 'q'},
+            {'username': 'artem', 'password': 'q'}];
+        const auth = auth_credits[Math.round(Math.random() * 2)];
         axios.post('http://localhost:8000/api/obtain-auth-token/',
             {
                 'username': auth['username'],
                 'password': auth['password']
             })
             .then(response => {
-                localStorage.setItem('token', response.data['token'])
+                localStorage.setItem('token', response.data['token']);
                 return response.data['token']
             })
             .then((token) => {
+                console.log('token' + token)
                 const config = {
                     headers: {'Authorization': 'JWT ' + token}
                 };
                 axios.get('http://localhost:8000/api/self-users/?fields=id', config)
                     .then(response => {
-                        localStorage.setItem(['user_id', response.data['id']])
+                        localStorage.setItem('user_id', response.data['id'])
                     });
-                const user_socket = new WebSocket('ws://0.0.0.0:8000/user?token=' + token[1]);
+                const user_socket = new WebSocket('ws://0.0.0.0:8000/user/?token=' + token);
                 user_socket.onopen = () => {
                     console.log("User chat_socket open");
                 };
                 user_socket.onmessage = (event) => {
-                    console.log(JSON.parse(event.data)['data'])
-                    //    handle action messages from server
+                    console.log('user event')
+                    const data = JSON.parse(event.data);
+                    if (data.type === TEXT_MESSAGE) {
+                        const action = data.action;
+                        const chats = this.state.chats
+                        for (let i = 0; i < chats.length; i++) {
+                            if (chats[i].id === action.chat) {
+                                chats[i].last_message = action
+                            }
+                        }
+                        this.setState({'chats': chats})
+                    }
 
                 };
                 user_socket.onclose = () => {
@@ -54,13 +67,22 @@ export class ChatWrapper extends Component {
             });
 
         this.state = {
-            chats: []
+            chats: [],
+            current_chat: null,
         };
     }
 
+    ChooseChat = (chat_id) => {
+        console.log(chat_id);
+        this.setState({'current_chat': chat_id})
+    };
+
     render() {
         const chats = this.state.chats;
-        return <div>{chats.length ? < AllChats chats={this.state.chats}/> : ''}</div>
+        return <div className="chat-display">
+            {chats.length ? < AllChats chats={this.state.chats} ChooseChat={this.ChooseChat}/> : ''}
+            {this.state.current_chat ? <Chat key={this.state.current_chat} chat_id={this.state.current_chat}/> : ''}
+        </div>
     }
 }
 

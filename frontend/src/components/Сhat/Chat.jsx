@@ -3,59 +3,75 @@ import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import io from 'socket.io-client';
 import {withRouter} from 'react-router'
+import axios from 'axios'
 import '../../styles/chat.css'
 
 export class Chat extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        console.log('init')
+        super(props);
         this.state = {
-            messages: [
-                {id: 0, name: 'Nikita', text: 'lorem ipsum lalalalalallalalallalalal fdsafdafdf afdaf daf sadf'},
-                {id: 0, name: 'Nikita', text: 'lorem ipsum lalalalalallalalallalalal'},
-                {id: 2, name: 'Artem', text: 'lorem ipsum lalalalalallalalallalalal'},
-                {id: 3, name: 'Den', text: 'lorem ipsum lalalalalallalalallalalal'},
-                {id: 0, name: 'Nikita', text: 'lorem ipsum lalalalalallalalallalalal'},
-            ]
-        }
+            chat_id: props.chat_id,
+            messages: [],
+            messages_number: props.start_with_messages || 20
+        };
+        const token = localStorage.getItem('token');
+        const user_id = localStorage.getItem('user_id');
+        this.token = token;
+        this.user_id = user_id;
+        const config = {
+            headers: {'Authorization': 'JWT ' + token}
+        };
+        axios.get(`http://localhost:8000/api/private-messages/` +
+            `${this.state.chat_id}/?message_number=${this.state.messages_number}`, config)
+            .then(response => {
+                console.log(response.data);
+                this.setState({'messages': response.data});
+            });
+
+        const socket = new WebSocket('ws://0.0.0.0:8000/private_chat/?token=' +
+            token + '&private_chat_id=' + this.state.chat_id);
+        this.chat_socket = socket;
+        socket.onopen = () => {
+            console.log("Connected to chat chat_socket");
+        };
+        socket.onmessage = (event) => {
+            console.log('chat message')
+            console.log(JSON.parse(event.data));
+            this.setState({messages: [...this.state.messages, JSON.parse(event.data)]})
+
+        };
+        socket.onclose = () => {
+            console.log('disconnected')
+        };
+        socket.onerror = (e) => {
+            console.log(e)
+        };
     }
 
-    onConnect() {
-
-    }
-
-    onDisconnect(data) {
-
-    }
-
-    onEvent() {
-
-    }
+    componentWillUnmount = () => {
+        this.chat_socket.close()
+    };
 
     addMessage(e) {
-        if (e.charCode != 13) return;
-        this.setState({
-            ...this.state,
-            messages: [
-                ...this.state.messages,
-                {id: 0, name: 'Nikita', text: this.textInput.value}
-            ]
-        })
+        if (e.charCode !== 13) return;
+        this.chat_socket.send(JSON.stringify(this.textInput.value));
         this.textInput.value = ''
     }
 
     messageGenerate(messages) {
         let cur_user, tmp, messageToArr;
         return messages.map((message, i) => {
-            cur_user = message.id == 0 ? 'self' : 'other'
+            cur_user = message.owner == this.user_id ? 'self' : 'other';
             messageToArr = message.text.match(/.{1,20}/g);
             tmp = messageToArr.map((value, j) => {
                 return (
                     <p key={'p_' + j + i}>{value}</p>
                 )
-            })
+            });
             return (
                 <li className={cur_user} key={'li_chat_' + i}>
-                    <div className="avatar">{message.name.substring(0, 2)}</div>
+                    <div className="avatar">{message.owner}</div>
                     <div className="msg">
                         {tmp}
                     </div>
@@ -66,21 +82,17 @@ export class Chat extends Component {
 
     render() {
         return (
-            <div className="container-contact100">
+            <div className="current-chat">
                 <div className="menu">
                     <div className="back"><i className="fa fa-chevron-left"></i> <img
                         src="https://i.imgur.com/DY6gND0.png" draggable="false"/></div>
-                    <div className="name">Alex</div>
-                    <div className="last">18:09</div>
+                    <div className="name">{this.user_id}</div>
+                    <div
+                        className="last">{this.state.messages.length ? this.state.messages[this.state.messages.length - 1].created_at : "not this time"}
+                    </div>
                 </div>
                 <div className="chat-display">
-                    <ul className="all-chats">
-                        <li>first chat</li>
-                        <li>second chat</li>
-                        <li>third chat</li>
-                        <li>fourth chat</li>
-                    </ul>
-                    <ol className="current-chat chat">
+                    <ol className="chat">
                         {this.messageGenerate(this.state.messages)}
                     </ol>
                 </div>

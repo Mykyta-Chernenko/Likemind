@@ -18,7 +18,7 @@ urlpatterns = [
     path('activate-account/<str:activate_link>/', activate_account, name='activate-account'),
     # chat
     path('api/private-chats/', PrivateChatList.as_view(), name='private-chat-list'),
-    path('api/private-messages/', PrivateMessageList.as_view(), name='private-message-list'),
+    path('api/private-messages/<int:pk>/', PrivateMessageList.as_view(), name='private-message-list'),
 
     path('admin/', admin.site.urls),
     path('docs/', include_docs_urls(title='LikeMind API', permission_classes=[]))

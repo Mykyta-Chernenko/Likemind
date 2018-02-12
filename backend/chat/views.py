@@ -3,7 +3,7 @@ from django.shortcuts import render
 from rest_framework.generics import CreateAPIView, ListAPIView, GenericAPIView
 
 from chat.models import PrivateChat, PrivateMessage
-from chat.serializers import PrivateChatSerializer,PrivateMessageSerializer
+from chat.serializers import PrivateChatSerializer, PrivateMessageSerializer
 
 MESSAGE_MAX_NUMBER = 1000
 DEFAULT_MESSAGE_NUMBER = 20
@@ -22,6 +22,7 @@ class PrivateMessageList(CreateAPIView, ListAPIView):
     queryset = PrivateMessage.objects.all()
 
     def get_queryset(self):
+        self.queryset = self.queryset.filter(chat__pk=self.kwargs['pk'])
         try:
             message_number = int(self.request.GET['message_number'])
             message_number = message_number if message_number <= MESSAGE_MAX_NUMBER else MESSAGE_MAX_NUMBER
