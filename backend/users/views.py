@@ -1,5 +1,5 @@
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpRequest
 from rest_framework import renderers
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.reverse import reverse
 from cryptography.fernet import Fernet
+from rest_framework_jwt.views import obtain_jwt_token
 
 from users.encoding import decode
 from backend.settings import PUBLIC_KEY_PERSON_ID
@@ -50,14 +51,16 @@ class UserListView(CreateAPIView):
     Create a new person. Creates email for account verifying.
     '''
     serializer_class = UserSerializer
-    http_method_names = ('post',)
+    permission_classes = [AllowAny]
+    http_method_names = ['post']
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        person = serializer.create(serializer.validated_data)
-        token = Token.objects.get_or_create(user=person)
-        return JsonResponse(status=201, data={'id': person.id, 'token': str(token)})
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.serializer_class(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     person = serializer.create(serializer.validated_data)
+    #     token = obtain_jwt_token(request._request, username=serializer.validated_data['username'],
+    #                              password=serializer.validated_data['password'])
+    #     return JsonResponse(status=201, data={'id': person.id, 'token': str(token)})
 
 
 class UserDetailView(UpdateAPIView, RetrieveAPIView, DestroyAPIView):
@@ -74,8 +77,6 @@ class UserDetailView(UpdateAPIView, RetrieveAPIView, DestroyAPIView):
     serializer_class = UserSerializer
     queryset = Person.objects.all()
     http_method_names = ['put', 'get', 'delete']
-
-
 
 
 class SelfUserDetailView(UpdateAPIView, RetrieveAPIView, DestroyAPIView):

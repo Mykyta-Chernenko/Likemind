@@ -3,7 +3,8 @@ from django.shortcuts import render
 from rest_framework.generics import CreateAPIView, ListAPIView, GenericAPIView
 
 from chat.models import PrivateChat, PrivateMessage
-from chat.serializers import PrivateChatSerializer,PrivateMessageSerializer
+from chat.serializers import PrivateChatSerializer
+from users.serializers import PrivateMessageSerializer
 
 MESSAGE_MAX_NUMBER = 1000
 DEFAULT_MESSAGE_NUMBER = 20

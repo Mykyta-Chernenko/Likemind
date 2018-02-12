@@ -35,7 +35,7 @@ class NestedUserSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
-    friends = NestedUserSerializer(many=True, required=False)
+    friends = NestedUserSerializer(many=True, required=False, read_only=True)
 
     class Meta(NestedUserSerializer.Meta):
         fields = NestedUserSerializer.Meta.fields + ('friends',)
@@ -64,3 +64,7 @@ class FriendSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class PrivateMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PrivateMessage
+        fields = ['owner', 'text', 'chat', 'created_at', 'edited', 'edited_at']
