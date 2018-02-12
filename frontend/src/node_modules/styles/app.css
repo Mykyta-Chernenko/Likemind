@@ -1,1 +1,14 @@
 @import url(main.css);
+.chat-display {
+  display: flex;
+  flex-direction: row;
+  width: 100%; }
+  .chat-display .all-chats {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    width: 20%; }
+  .chat-display .current-chat {
+    display: flex;
+    flex-direction: column;
+    width: 80%; }

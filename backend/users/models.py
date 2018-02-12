@@ -15,6 +15,11 @@ class Person(AbstractUser):
     friends = models.ManyToManyField('self', through='Friend', symmetrical=False)
     manager = PersonManager
 
+    def save(self, *args, **kwargs):
+        if self.is_staff:
+            self.is_active = True
+        return super(Person, self).save()
+
     @property
     def expired(self):
         return not self.is_active and self.date_joined + ACCOUNT_ACTIVATION_DAYS > datetime.now()

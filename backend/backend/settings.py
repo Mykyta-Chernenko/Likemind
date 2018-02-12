@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import datetime
 import os
 import redis
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
 
@@ -111,21 +110,21 @@ else:
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
+# AUTH_PASSWORD_VALIDATORS = [
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+#     },
+# ]
+# RETURN IN PROD
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -152,6 +151,12 @@ REST_FRAMEWORK = {
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+
+        # 'rest_framework.permissions.AllowAny',
+        # Debugging
+        'rest_framework.permissions.IsAuthenticated',
+    )
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
@@ -173,15 +178,14 @@ EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [("redis", 6379)],
             "group_expiry": 60 * 60,
         },
-        "ROUTING": "chat.routing.channel_routing",
-
     },
 }
+ASGI_APPLICATION = "backend.routing.application"
 JWT_AUTH = {
     'JWT_VERIFY_EXPIRATION': False  # change in production
 }

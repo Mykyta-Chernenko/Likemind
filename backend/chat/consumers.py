@@ -1,125 +1,133 @@
 import datetime
-import json
+from copy import deepcopy
+from time import sleep
 
+from asgiref.sync import async_to_sync
+from channels_redis.core import *
 from backend.settings import _redis as r
-from channels import Group, Channel
-from channels.auth import channel_session_user_from_http
-from channels.handler import AsgiRequest
-from channels.sessions import channel_session, enforce_ordering
-from urllib.parse import parse_qs
-
+from channels.generic.websocket import JsonWebsocketConsumer, AsyncJsonWebsocketConsumer
 from django.db.models import Q
-from rest_framework.exceptions import AuthenticationFailed
-
-from chat.models import PrivateChat
+from chat.models import PrivateChat, PrivateMessage
 from users.models import Person, Friend
-from utils.channels import jwt_initial_auth, user_from_session, add_second_user
-from rest_framework.settings import api_settings
 
 LAST_MESSAGE = 'last_message'
 PRIVATE_CHAT = 'private_chat'
+MESSAGE = 'message'
+USER = 'user'
+TEXT_MESSAGE = 'text_message'
 
 
-@channel_session
-@jwt_initial_auth
-def user_connect(message):
-    print('user connection init')
-    message.reply_channel.send({'accept': True})
-    Group(f'user_{message.user.id}').add(message.reply_channel)
+class PrivateChatConsumer(JsonWebsocketConsumer):
 
+    def __init__(self, scope):
+        scope['to_user'] = Person.objects.get(pk=scope['to_user_id'])
+        super(PrivateChatConsumer, self).__init__(scope)
 
-@channel_session
-@user_from_session
-def user_message(message):
-    print('user message')
-    Group(f'user_{message.user.id}').send({'text': json.dumps({'text': message['text']})})
+    def connect(self):
+        from_user, to_user = self.scope['user'], self.scope['to_user']
+        if from_user == to_user:
+            self.accept()
+        else:
+            try:
+                # check if both way friendship exists
+                Friend.objects.get(first=from_user, second=to_user)
+                Friend.objects.get(second=from_user, first=to_user)
+                self.accept()
+            except Friend.DoesNotExist:
+                self.close('No such friendship')
+                return
+        print(f'chat init from {from_user} to {to_user}')
+        pc, created = self._get_private_chat(from_user, to_user)
+        group_name = f'{PRIVATE_CHAT}_{pc.id}'
 
+        try:
+            async_to_sync(self.channel_layer.group_add)(group_name, self.channel_name)
+        except Exception as e:
+            print('Exeption on message in private chat' + str(e))
+            self.async_group_discard(group_name, self.channel_name)
+            raise
 
-@channel_session
-@user_from_session
-def user_disconnect(message):
-    print('user disconnect')
-    Group(f'user_{message.user.id}').discard(message.reply_channel)
-
-
-def get_private_chat(from_user, to_user):
-    one, two = (from_user, to_user) if from_user < to_user else (to_user, from_user)
-    one, two = Person.objects.get(pk=one), Person.objects.get(pk=two)
-    pc, created = PrivateChat.objects.get_or_create(first_user=one, second_user=two)
-    return pc, created
-
-
-def get_from_user_to_user(message):
-    return message.user.id, int(message.channel_session['to_user_id'])
-
-
-@channel_session
-@enforce_ordering
-@jwt_initial_auth
-@add_second_user
-def start_private_chat(message):
-    from_user, to_user = get_from_user_to_user(message)
-    try:
-        # check if both way friendship exists
-        Friend.objects.get(first=from_user, second=to_user)
-        Friend.objects.get(second=from_user, first=to_user)
-        message.reply_channel.send({"accept": True})
-    except Friend.DoesNotExist:
-        message.reply_channel.send({"accept": False})
-        return
-    print(f'chat init from {from_user} to {to_user}')
-    pc, created = get_private_chat(from_user, to_user)
-    group_name = f'{PRIVATE_CHAT}_{pc.id}'
-    try:
-        group = Group(group_name)
-        Group(group_name).add(message.reply_channel)
-        print(len(Group(group_name).channel_layer.group_channels(group_name)))
-        print('----')
-    except Exception:
-        print('exp')
-        Group(group_name).discard(message.reply_channel)
-        raise
-
-
-@channel_session
-@enforce_ordering
-@user_from_session
-def private_chat_send_message(message):
-    from_user, to_user = get_from_user_to_user(message)
-    pc, created = get_private_chat(from_user, to_user)
-    print(f'chat {pc.id} {message["text"][:10]} from {from_user} to {to_user}')
-
-    group_name = f'{PRIVATE_CHAT}_{pc.id}'
-    try:
-        group = Group(group_name)
-        group.send({'text': json.dumps({'text': message['text']})})
-        Group(f'user_{from_user}').send({'text': json.dumps(
-            {'text': f'In chat {pc.id} from user{from_user} to user{to_user} was sent message {message["text"]}'})})
-        Group(f'user_{to_user}').send({'text': json.dumps(
-            {'text': f'In chat {pc.id} from user{from_user} to user{to_user} was sent message {message["text"]}'})})
-        redis_last_message_name = f'{group_name}_{LAST_MESSAGE}'
-        r.hmset(redis_last_message_name,
-                {
-                    'time': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%s'),
-                    'text': message['text'],
-                    'user_id': from_user
+    def receive_json(self, content, **kwargs):
+        from_user, to_user = self.scope['user'], self.scope['to_user']
+        pc, created = self._get_private_chat(from_user, to_user)
+        print(f'chat {pc.id} {content[:10]} from {from_user} to {to_user}')
+        group_name = f'{PRIVATE_CHAT}_{pc.id}'
+        try:
+            time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%s')
+            data = {
+                'action_type': TEXT_MESSAGE,
+                'action': {
+                    'chat': pc.id,
+                    'user_id': from_user.id,
+                    'time': time,
+                    'text': content,
                 }
-                )
+            }
+            chat_data = deepcopy(data)
+            chat_data['type'] = 'chat.message'
+            user_data = deepcopy(data)
+            user_data['type'] = 'user.event'
+            async_to_sync(self.channel_layer.group_send)(group_name, chat_data)
+            async_to_sync(self.channel_layer.group_send)(f'user_{from_user.id}', user_data)
+            async_to_sync(self.channel_layer.group_send)(f'user_{to_user.id}', user_data)
 
-        print('----')
-    except Exception:
-        Group(group_name).discard(message.reply_channel)
-        raise
+            redis_last_message_name = f'{group_name}_{LAST_MESSAGE}'
+            r.hmset(redis_last_message_name,
+                    {
+                        'type': TEXT_MESSAGE,
+                        'time': time,
+                        'text': content,
+                        'user_id': from_user.id
+                    })
+            PrivateMessage.objects.create(chat=pc, text=content, owner=from_user)
+        except Exception as e:
+            print('Exeption on message in private chat' + str(e))
+            async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
+            raise
+
+    def disconnect(self, message):
+        from_user, to_user = self.scope['user'], self.scope['to_user']
+        pc, created = self._get_private_chat(from_user, to_user)
+        print(f'chat {pc.id} disconnected from {from_user} to {to_user}')
+        group_name = f'{PRIVATE_CHAT}_{pc.id}'
+        async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
+
+    def _get_private_chat(self, from_user, to_user):
+        one, two = (from_user, to_user) if from_user.pk < to_user.pk else (to_user, from_user)
+        pc, created = PrivateChat.objects.get_or_create(first_user=one, second_user=two)
+        return pc, created
+
+    def chat_message(self, event):
+        self.send_json({
+            'type': event['action_type'],
+            'chat': event['action']['chat'],
+            'user_id': event['action']['user_id'],
+            'time': event['action']['time'],
+            'text': event['action']['text'],
+        })
 
 
-@channel_session
-@enforce_ordering
-@user_from_session
-def end_private_chat(message):
-    from_user, to_user = get_from_user_to_user(message)
-    pc, created = get_private_chat(from_user, to_user)
-    group_name = f'{PRIVATE_CHAT}_{pc.id}'
-    print(f'chat {pc.id} user {from_user} disconnected')
-    group = Group(group_name)
-    Group(group_name).discard(message.reply_channel)
-    print('----')
+class UserEventsConsumer(JsonWebsocketConsumer):
+
+    def connect(self):
+        print("user event connection")
+        self.accept()
+        user = self.scope['user']
+        async_to_sync(self.channel_layer.group_add)(f'{USER}_{user.id}', self.channel_name)
+
+    def receive_json(self, content, **kwargs):
+        print('message to user event. WTF?')
+        user = self.scope['user']
+        async_to_sync(self.channel_layer.group_send)(f'{USER}_{user.id}',
+                                                     {"type": "chat.message", "text": self.encode_json(content)}, )
+
+    def disconnect(self, message):
+        print('user event disconnect')
+        user = self.scope['user']
+        async_to_sync(self.channel_layer.group_discard)(f'{USER}_{user.id}', self.channel_name)
+
+    def user_event(self, event):
+        self.send_json({
+            'type': event['action_type'],
+            'action': event['action']
+        })
