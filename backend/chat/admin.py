@@ -6,17 +6,17 @@ from chat.models import PrivateMessage, EncryptedPrivateMessage, GroupMessage, P
 
 @admin.register(PrivateMessage)
 class PrivateMessageAdmin(admin.ModelAdmin):
-    fields = ['id', 'chat', 'owner', 'created_at', 'edited', 'edited_at']
+    fields = ['chat', 'owner', 'edited', 'text']
 
 
 @admin.register(EncryptedPrivateMessage)
 class EncryptedPrivateMessageAdmin(admin.ModelAdmin):
-    fields = ['chat', 'owner', 'created_at', 'edited', 'edited_at']
+    fields = ['chat', 'owner', 'edited']
 
 
 @admin.register(GroupMessage)
 class GroupMessageAdmin(admin.ModelAdmin):
-    fields = ['chat', 'owner', 'created_at', 'edited', 'edited_at']
+    fields = ['chat', 'owner', 'edited']
 
 
 @admin.register(PrivateChat)

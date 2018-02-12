@@ -1,6 +1,6 @@
 import datetime
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
 
 from users.models import Person
@@ -9,9 +9,9 @@ from users.models import Person
 class AbstractMessage(models.Model):
     text = models.TextField(max_length=1000)
     owner = models.ForeignKey(Person, on_delete=models.CASCADE)
-    created_at = models.TimeField(auto_now_add=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     edited = models.BooleanField(default=False)
-    edited_at = models.TimeField(auto_now=True)
+    edited_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
@@ -20,6 +20,7 @@ class AbstractMessage(models.Model):
     def save(self, *args, **kwargs):
         if self.edited_at and self.created_at and self.edited_at != self.created_at:
             self.edited = True
+        return super(AbstractMessage, self).save(*args, **kwargs)
 
 
 class AbstartPrivateMessage(AbstractMessage):
@@ -30,14 +31,11 @@ class AbstartPrivateMessage(AbstractMessage):
 class PrivateMessage(AbstractMessage):
     chat = models.ForeignKey('PrivateChat', on_delete=models.CASCADE, related_name='message_set')
 
-    def save(self, *args, **kwargs):
-        # TODO test it
-        if 'owner' in kwargs and 'chat' in kwargs:
-            pc = PrivateChat.objects.get(pk=kwargs['chat'])
-            if kwargs['owner'] not in pc.private_chat_first_set.values_list('id', flat=True) or \
-                    kwargs['owner'] not in pc.private_chat_second_set.values_list('id', flat=True):
-                raise ValidationError
-            super(PrivateMessage, self).save(*args, **kwargs)
+    def clean(self):
+        pc = self.chat
+        if not (self.owner == pc.first_user or self.owner == pc.second_user):
+            raise ValidationError("User doesn't belong to chat")
+        super(PrivateMessage, self).clean()
 
 
 class EncryptedPrivateMessage(AbstractMessage):
@@ -47,14 +45,11 @@ class EncryptedPrivateMessage(AbstractMessage):
     def should_delete(self):
         return self.created_at + self.chat.keep_time < datetime.datetime.now()
 
-    def save(self, *args, **kwargs):
-        # TODO test it
-        if 'owner' in kwargs and 'chat' in kwargs:
-            pc = PrivateChat.objects.get(pk=kwargs['chat'])
-            if kwargs['owner'] not in pc.encrypted_private_chat_first_set.values_list('id', flat=True) or \
-                    kwargs['owner'] not in pc.encrypted_private_chat_second_set.values_list('id', flat=True):
-                raise ValidationError
-            super(EncryptedPrivateMessage, self).save(*args, **kwargs)
+    def clean(self):
+        pc = self.chat
+        if not (self.owner == pc.first_user or self.owner == pc.second_user):
+            raise ValidationError("User doesn't belong to chat")
+        super(EncryptedPrivateMessage, self).clean()
 
 
 class GroupMessage(AbstractMessage):
@@ -76,9 +71,14 @@ class AbstractPrivateChat(AbstractChat):
     class Meta:
         abstract = True
 
-    @property
     def last_message(self):
-        return self.message_set.latest('created_at')
+        try:
+            return self.message_set.latest('created_at')
+        except ObjectDoesNotExist:
+            return None
+
+    def __str__(self):
+        return f' {self.first_user} and {self.second_user}'
 
 
 class PrivateChat(AbstractPrivateChat):

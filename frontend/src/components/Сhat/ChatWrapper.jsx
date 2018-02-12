@@ -59,8 +59,8 @@ export class ChatWrapper extends Component {
     }
 
     render() {
-        const chats = this.state.chats
-        return <div>{chats ? < AllChats chats={this.state.chats}/> : ''}</div>
+        const chats = this.state.chats;
+        return <div>{chats.length ? < AllChats chats={this.state.chats}/> : ''}</div>
     }
 }
 
