@@ -21,7 +21,6 @@ src/static_root/
 *.sqlite
 
 # Node modules
-node_modules/
 yarn.lock
 npm-debug.log
 
