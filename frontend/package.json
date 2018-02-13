@@ -11,31 +11,27 @@
     "react-redux": "^4.0.6",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
-    "react-router-redux": "^5.0.0-alpha.9",
     "react-scripts": "1.0.17",
     "redux": "^3.3.1",
     "redux-form": "^7.2.0",
-    "redux-logger": "2.5.2",
     "redux-thunk": "1.0.3",
     "socket.io-client": "^2.0.4"
   },
   "scripts": {
-    "start": "npm-run-all -p watch-css start-js",
+    "start": "npm-run-all -p start-js",
     "build": "npm-run-all build-css build-js",
     "start-js": "react-scripts start",
     "build-js": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "build-css": "node-sass-chokidar src/ -o src/",
-    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive"
+    "watch-css": "npm run build-css && node-sass-chokidar src/node_modules/styles -o src/node_modules/styles --watch --recursive",
+    "build-css": "node-sass-chokidar src/node_modules -o src/node_modules"
   },
   "proxy": "http://backend:8000",
   "devDependencies": {
+    "less-watch-compiler": "^1.11.0",
     "node-sass-chokidar": "0.0.3",
     "redux-devtools-extension": "^2.13.2"
-  },
-  "theme": {
-    "primary-color": "#6675df"
   },
   "main": "index.js",
   "license": "MIT"
