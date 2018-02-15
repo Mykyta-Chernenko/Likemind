@@ -1,8 +1,10 @@
 import datetime
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
 
+from files.models import ChatFile, ChatVideo, ChatImage, ChatAudio
 from users.models import Person
 
 
@@ -59,6 +61,10 @@ class GroupMessage(AbstractMessage):
 class AbstractChat(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     last_use = models.DateTimeField(auto_now=True)
+    files = GenericRelation(ChatFile)
+    videos = GenericRelation(ChatVideo)
+    images = GenericRelation(ChatImage)
+    audios = GenericRelation(ChatAudio)
 
     class Meta:
         abstract = True
@@ -82,12 +88,19 @@ class AbstractPrivateChat(AbstractChat):
 
 
 class PrivateChat(AbstractPrivateChat):
-    pass
+    class Meta:
+        verbose_name = 'private-chat'
 
 
 class EncryptedPrivateChat(AbstractPrivateChat):
     keep_time = models.DurationField(default=datetime.timedelta(minutes=1))
 
+    class Meta:
+        verbose_name = 'encrypted-private-chat'
+
 
 class GroupChat(AbstractChat):
     name = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = 'group-chat'

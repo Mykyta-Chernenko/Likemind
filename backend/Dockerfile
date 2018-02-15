@@ -14,3 +14,5 @@ RUN pip install django-cors-headers==2.1.0
 RUN pip install djangorestframework-queryfields==1.0.0
 RUN pip install channels
 RUN pip install channels_redis
+RUN pip install django-audiofield
+RUN pip install Pillow
