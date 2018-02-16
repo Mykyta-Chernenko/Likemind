@@ -1,14 +1,18 @@
 import datetime
+import json
 from copy import deepcopy
 from time import sleep
 
 from asgiref.sync import async_to_sync
 from channels_redis.core import *
+from django.core.exceptions import ObjectDoesNotExist
+
 from backend.settings import _redis as r
 from channels.generic.websocket import JsonWebsocketConsumer, AsyncJsonWebsocketConsumer
 from django.db.models import Q
 from chat.models import PrivateChat, PrivateMessage
 from users.models import Person, Friend
+from utils.django_annoying import get_object_or_None
 
 LAST_MESSAGE = 'last_message'
 PRIVATE_CHAT = 'private_chat'
@@ -20,7 +24,19 @@ TEXT_MESSAGE = 'text_message'
 class PrivateChatConsumer(JsonWebsocketConsumer):
 
     def __init__(self, scope):
-        scope['to_user'] = Person.objects.get(pk=scope['to_user_id'])
+        to_user_id = scope.get('to_user_id')
+        private_chat_id = scope.get('private_chat_id')
+        try:
+            if to_user_id:
+                scope['to_user'] = Person.objects.get(pk=to_user_id)
+            elif private_chat_id:
+                pc = PrivateChat.objects.get(pk=private_chat_id)
+                scope['private_chat'] = pc
+                scope['to_user'] = pc.first_user if pc.first_user != scope['user'] else pc.second_user
+            else:
+                self.close()
+        except ObjectDoesNotExist:
+            self.close()
         super(PrivateChatConsumer, self).__init__(scope)
 
     def connect(self):
@@ -44,7 +60,7 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
             async_to_sync(self.channel_layer.group_add)(group_name, self.channel_name)
         except Exception as e:
             print('Exeption on message in private chat' + str(e))
-            self.async_group_discard(group_name, self.channel_name)
+            async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
             raise
 
     def receive_json(self, content, **kwargs):
@@ -58,9 +74,10 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
                 'action_type': TEXT_MESSAGE,
                 'action': {
                     'chat': pc.id,
-                    'user_id': from_user.id,
-                    'time': time,
+                    'owner': from_user.id,
+                    'created_at': time,
                     'text': content,
+                    'edited': False,
                 }
             }
             chat_data = deepcopy(data)
@@ -75,9 +92,10 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
             r.hmset(redis_last_message_name,
                     {
                         'type': TEXT_MESSAGE,
-                        'time': time,
+                        'created_at': time,
                         'text': content,
-                        'user_id': from_user.id
+                        'owner': from_user.id,
+                        'edited': False
                     })
             PrivateMessage.objects.create(chat=pc, text=content, owner=from_user)
         except Exception as e:
@@ -93,17 +111,24 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
         async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
 
     def _get_private_chat(self, from_user, to_user):
-        one, two = (from_user, to_user) if from_user.pk < to_user.pk else (to_user, from_user)
-        pc, created = PrivateChat.objects.get_or_create(first_user=one, second_user=two)
+        created = False
+        if 'private_chat_id' in self.scope:
+            pc = PrivateChat.objects.get(pk=self.scope['private_chat_id'])
+        else:
+            one, two = (from_user, to_user) if from_user.pk < to_user.pk else (to_user, from_user)
+            pc, created = PrivateChat.objects.get_or_create(first_user=one, second_user=two)
         return pc, created
 
     def chat_message(self, event):
+        print('send chat message')
         self.send_json({
             'type': event['action_type'],
             'chat': event['action']['chat'],
-            'user_id': event['action']['user_id'],
-            'time': event['action']['time'],
+            'owner': event['action']['owner'],
+            'created_at': event['action']['created_at'],
             'text': event['action']['text'],
+            'edited': event['action']['edited']
+
         })
 
 
@@ -127,6 +152,7 @@ class UserEventsConsumer(JsonWebsocketConsumer):
         async_to_sync(self.channel_layer.group_discard)(f'{USER}_{user.id}', self.channel_name)
 
     def user_event(self, event):
+        print('send user message')
         self.send_json({
             'type': event['action_type'],
             'action': event['action']

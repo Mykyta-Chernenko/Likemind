@@ -25,8 +25,8 @@ class PrivateChatSerializer(serializers.ModelSerializer):
         last_message = {}
         if exist:
             last_message['text'] = r.hget(redis_chat_last_message, 'text').decode('utf-8')
-            last_message['time'] = r.hget(redis_chat_last_message, 'time').decode('utf-8')
-            last_message['user_id'] = r.hget(redis_chat_last_message, 'user_id').decode('utf-8')
+            last_message['created_at'] = r.hget(redis_chat_last_message, 'created_at').decode('utf-8')
+            last_message['owner'] = r.hget(redis_chat_last_message, 'owner').decode('utf-8')
         else:
             _last_message = instance.last_message()
             if _last_message:
