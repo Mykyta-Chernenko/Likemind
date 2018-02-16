@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import datetime
 import os
 import redis
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
 
@@ -49,7 +50,8 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'users',
-    'chat'
+    'chat',
+    'files'
 ]
 
 MIDDLEWARE = [
@@ -76,6 +78,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media'
             ],
         },
     },
@@ -196,3 +199,6 @@ FIXTURE_DIRS = (
 CORS_ORIGIN_ALLOW_ALL = True
 
 _redis = redis.Redis(host='redis', port=6379, db=1)
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

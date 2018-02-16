@@ -4,25 +4,20 @@ from copy import deepcopy
 from time import sleep
 
 from asgiref.sync import async_to_sync
-from channels_redis.core import *
 from django.core.exceptions import ObjectDoesNotExist
 
 from backend.settings import _redis as r
-from channels.generic.websocket import JsonWebsocketConsumer, AsyncJsonWebsocketConsumer
+from channels.generic.websocket import JsonWebsocketConsumer
 from django.db.models import Q
+
+from chat.consts import LAST_MESSAGE, TEXT_MESSAGE, PRIVATE_CHAT
 from chat.models import PrivateChat, PrivateMessage
+from users.consts import USER
 from users.models import Person, Friend
 from utils.django_annoying import get_object_or_None
 
-LAST_MESSAGE = 'last_message'
-PRIVATE_CHAT = 'private_chat'
-MESSAGE = 'message'
-USER = 'user'
-TEXT_MESSAGE = 'text_message'
-
 
 class PrivateChatConsumer(JsonWebsocketConsumer):
-
     def __init__(self, scope):
         to_user_id = scope.get('to_user_id')
         private_chat_id = scope.get('private_chat_id')
@@ -133,7 +128,6 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
 
 
 class UserEventsConsumer(JsonWebsocketConsumer):
-
     def connect(self):
         print("user event connection")
         self.accept()

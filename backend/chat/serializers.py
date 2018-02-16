@@ -3,39 +3,87 @@ from collections import OrderedDict
 
 from rest_framework import serializers
 
-from chat.models import PrivateChat, PrivateMessage
+from chat.models import PrivateChat, PrivateMessage, EncryptedPrivateMessage, GroupMessage, EncryptedPrivateChat, \
+    GroupChat
 from backend.settings import _redis as r
 from chat.consumers import LAST_MESSAGE, PRIVATE_CHAT
 from users.serializers import UserSerializer
 
 
-class PrivateChatSerializer(serializers.ModelSerializer):
-    first_user = UserSerializer()
-    second_user = UserSerializer()
+class MessageObjectRelatedField(serializers.RelatedField):
+    def to_representation(self, value):
+        """
+        Serialize bookmark instances using a bookmark serializer,
+        and note instances using a note serializer.
+        """
+        if isinstance(value, PrivateMessage):
+            serializer = PrivateMessageSerializer(value)
+        elif isinstance(value, EncryptedPrivateMessage):
+            serializer = EncryptedPrivateMessageSerializer(value)
+        elif isinstance(value, GroupMessage):
+            serializer = GroupMessageSerializer(value)
+        else:
+            raise Exception('Unexpected type of tagged object')
+
+        return serializer.data
+
+
+class ChatSerializer(serializers.ModelSerializer):
+    last_message = MessageObjectRelatedField(read_only=True)
+
+    class Meta:
+        fields = ['id', 'creation', 'last_message']
+        depth = 1
+
+
+class PrivateChatSerializer(ChatSerializer):
+    first_user = UserSerializer(short=True)
+    second_user = UserSerializer(short=True)
 
     class Meta:
         model = PrivateChat
-        fields = ['id', 'first_user', 'second_user', 'creation']
-        depth = 1
+        fields = ChatSerializer.Meta.fields + ['first_user', 'second_user']
+        depth = 0
 
-    def to_representation(self, instance):
-        serialized = super(PrivateChatSerializer, self).to_representation(instance)
-        redis_chat_last_message = f'{PRIVATE_CHAT}_{instance.id}_{LAST_MESSAGE}'
-        exist = r.exists(redis_chat_last_message)
-        last_message = {}
-        if exist:
-            last_message['text'] = r.hget(redis_chat_last_message, 'text').decode('utf-8')
-            last_message['created_at'] = r.hget(redis_chat_last_message, 'created_at').decode('utf-8')
-            last_message['owner'] = r.hget(redis_chat_last_message, 'owner').decode('utf-8')
-        else:
-            _last_message = instance.last_message()
-            if _last_message:
-                last_message = PrivateMessageSerializer(_last_message).data
-        serialized['last_message'] = OrderedDict(last_message)
-        return serialized
+    def __init__(self, *args, short=False, **kwargs):
+        super(PrivateChatSerializer, self).__init__(*args, **kwargs)
+        if short:
+            if 'first_user' in self.fields:
+                self.fields.pop('first_user')
+            if 'second_user' in self.fields:
+                self.fields.pop('second_user')
 
 
-class PrivateMessageSerializer(serializers.ModelSerializer):
+class EncryptedPrivateChatSerializer(ChatSerializer):
+    class Meta:
+        model = EncryptedPrivateChat
+        fields = ChatSerializer.Meta.fields + ['keep_time']
+
+
+class GroupChatSerializer(ChatSerializer):
+    class Meta:
+        model = GroupChat
+        fields = ChatSerializer.Meta.fields + ['time']
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ['owner', 'text', 'chat', 'created_at', 'edited', 'edited_at']
+
+
+class PrivateMessageSerializer(MessageSerializer):
     class Meta:
         model = PrivateMessage
-        fields = ['owner', 'text', 'chat', 'created_at', 'edited', 'edited_at']
+        fields = MessageSerializer.Meta.fields
+
+
+class EncryptedPrivateMessageSerializer(MessageSerializer):
+    class Meta:
+        model = EncryptedPrivateMessage
+        fields = MessageSerializer.Meta.fields
+
+
+class GroupMessageSerializer(MessageSerializer):
+    class Meta:
+        model = GroupMessage
+        fields = MessageSerializer.Meta.fields
