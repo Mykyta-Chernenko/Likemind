@@ -15,6 +15,8 @@ from files.converters import ChatTypeConverter
 
 register_converter(ChatTypeConverter, 'chat_type')
 urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('docs/', include_docs_urls(title='LikeMind API', permission_classes=[])),
     path('api/obtain-auth-token/', obtain_jwt_token),
     # users
     path('api/users/', UserListView.as_view(), name='user-list'),
@@ -27,8 +29,6 @@ urlpatterns = [
     path('api/private-messages/<int:pk>/', PrivateMessageList.as_view(), name='private-message-list'),
 
     path('api/files/<chat_type:chat_model>/<int:chat_id>/file', ChatFileList.as_view(), name='chat-file-list'),
-    path('admin/', admin.site.urls),
-    path('docs/', include_docs_urls(title='LikeMind API', permission_classes=[]))
 ]
 
 if settings.DEBUG:

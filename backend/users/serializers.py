@@ -41,6 +41,12 @@ class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
         fields = NestedUserSerializer.Meta.fields + ('friends',)
         depth = 2
 
+    def __init__(self, *args, short=False, **kwargs):
+        super(UserSerializer, self).__init__(*args, **kwargs)
+        if short:
+            if 'friends' in self.fields:
+                self.fields.pop('friends')
+
     def create(self, validated_data):
         user = super(UserSerializer, self).create(validated_data)
         user.set_password(validated_data['password'])

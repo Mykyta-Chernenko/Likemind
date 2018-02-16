@@ -1,16 +1,15 @@
-from chat.models import PrivateChat, GroupChat, EncryptedPrivateChat
+from chat.consts import CHAT_TYPES
 
 
 class ChatTypeConverter:
-    chat_types = {'private-chat': PrivateChat, 'group-chat': GroupChat, 'encrypted-private-chat': EncryptedPrivateChat}
-    regex = ('({})|' * len(chat_types))[:-1].format(*[key for key in chat_types.keys()])
+    regex = ('({})|' * len(CHAT_TYPES))[:-1].format(*[key for key in CHAT_TYPES.keys()])
 
     def to_python(self, _key):
-        for key, value in self.chat_types.items():
+        for key, value in CHAT_TYPES.items():
             if key == _key:
                 return value
 
     def to_url(self, _value):
-        for key, value in self.chat_types.items():
+        for key, value in CHAT_TYPES.items():
             if value == _value:
                 return key
