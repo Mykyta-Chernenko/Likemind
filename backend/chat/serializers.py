@@ -43,6 +43,7 @@ class PrivateChatSerializer(ChatSerializer):
     class Meta:
         model = PrivateChat
         fields = ChatSerializer.Meta.fields + ['first_user', 'second_user']
+        depth = 0
 
     def __init__(self, *args, short=False, **kwargs):
         super(PrivateChatSerializer, self).__init__(*args, **kwargs)
@@ -66,8 +67,6 @@ class GroupChatSerializer(ChatSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    owner = UserSerializer(short=True)
-
     class Meta:
         fields = ['owner', 'text', 'chat', 'created_at', 'edited', 'edited_at']
 

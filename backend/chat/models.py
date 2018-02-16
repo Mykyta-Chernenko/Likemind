@@ -27,7 +27,7 @@ class AbstractMessage(models.Model):
 
 
 class AbstartPrivateMessage(AbstractMessage):
-    class Meta:
+    class Meta(AbstractMessage.Meta):
         abstract = True
 
 
@@ -97,27 +97,28 @@ class AbstractPrivateChat(AbstractChat):
     first_user = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='%(class)s_first_set')
     second_user = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='%(class)s_second_set')
 
-    class Meta:
+    class Meta(AbstractChat.Meta):
         abstract = True
+        unique_together = ('first_user', 'second_user')
 
     def __str__(self):
         return f' {self.first_user} and {self.second_user}'
 
 
 class PrivateChat(AbstractPrivateChat):
-    class Meta:
+    class Meta(AbstractChat.Meta):
         verbose_name = 'private-chat'
 
 
 class EncryptedPrivateChat(AbstractPrivateChat):
     keep_time = models.DurationField(default=datetime.timedelta(minutes=1))
 
-    class Meta:
+    class Meta(AbstractPrivateChat.Meta):
         verbose_name = 'encrypted-private-chat'
 
 
 class GroupChat(AbstractChat):
     name = models.CharField(max_length=255)
 
-    class Meta:
+    class Meta(AbstractChat.Meta):
         verbose_name = 'group-chat'
