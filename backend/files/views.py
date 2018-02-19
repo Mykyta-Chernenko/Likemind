@@ -45,10 +45,6 @@ class ChatFileList(CreateAPIView, ListAPIView):
         return self.queryset.filter(content_type=content_type, object_id=object_id)
 
     def list(self, request, *args, **kwargs):
-        model = kwargs.get('chat_model')
-        model_id = kwargs.get('chat_id')
-        chat = get_object_or_404(model, pk=model_id)
-        content_type = ContentType.objects.get(app_label=chat._meta.app_label, model=chat._meta.model_name)
-        object_id = model_id
-        self.queryset = self.queryset.filter(content_type=content_type.id, object_id=object_id)
+        content_type, object_id = self.get_chat(**kwargs)
+        self.queryset = self.queryset.filter(content_type=content_type, object_id=object_id)
         return super(ChatFileList, self).list(request, *args, **kwargs)
