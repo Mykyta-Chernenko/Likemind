@@ -10,14 +10,11 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.reverse import reverse
 from cryptography.fernet import Fernet
-from rest_framework_jwt.views import obtain_jwt_token
-
-from users.encoding import decode
 from backend.settings import PUBLIC_KEY_PERSON_ID
 from .models import Person, Friend
 from .serializers import CreateUserSerializer, UserSerializer, FriendSerializer
+
 
 
 def activate_account(request, activate_link):

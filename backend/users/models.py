@@ -5,6 +5,7 @@ from datetime import datetime
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.functional import cached_property
+from phonenumber_field.modelfields import PhoneNumberField
 
 from backend.settings import ACCOUNT_ACTIVATION_DAYS
 from users.managers import PersonManager
@@ -13,6 +14,8 @@ from users.managers import PersonManager
 class Person(AbstractUser):
     is_active = models.BooleanField(default=False)
     friends = models.ManyToManyField('self', through='Friend', symmetrical=False)
+    phone = PhoneNumberField('phone', unique=True)
+    email = models.EmailField('email address', unique=True)
     manager = PersonManager
 
     def save(self, *args, **kwargs):
@@ -21,7 +24,7 @@ class Person(AbstractUser):
         return super(Person, self).save()
 
     @property
-    def expired(self):
+    def activation_expired(self):
         return not self.is_active and self.date_joined + ACCOUNT_ACTIVATION_DAYS > datetime.now()
 
 

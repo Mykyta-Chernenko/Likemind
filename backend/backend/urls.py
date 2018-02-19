@@ -17,7 +17,6 @@ register_converter(ChatTypeConverter, 'chat_type')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('docs/', include_docs_urls(title='LikeMind API', permission_classes=[])),
-    path('api/obtain-auth-token/', obtain_jwt_token),
     path('api/', include('users.urls')),
     path('api/', include('chat.urls')),
     path('api/', include('files.urls')),

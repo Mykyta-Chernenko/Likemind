@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'channels',
     'corsheaders',
+    'phonenumber_field',
 
     'users',
     'chat',
@@ -167,6 +168,10 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 # Custom AUTH
 
 AUTH_USER_MODEL = 'users.Person'
+
+AUTHENTICATION_BACKENDS = [
+    'users.backend.PersonBackend',
+]
 
 PUBLIC_KEY_PERSON_ID = os.environ["PUBLIC_KEY_PERSON_ID"]
 DOMAIN = '0.0.0.0:8000'  # Site domain
