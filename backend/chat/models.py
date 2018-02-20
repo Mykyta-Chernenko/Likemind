@@ -1,5 +1,4 @@
 import datetime
-
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
@@ -7,6 +6,7 @@ from django.db import models
 from files.models import ChatFile, ChatVideo, ChatImage, ChatAudio
 from users.models import Person
 from backend.settings import _redis as r
+from utils.models_methods import _string_type
 
 
 class AbstractMessage(models.Model):
@@ -24,6 +24,10 @@ class AbstractMessage(models.Model):
         if self.edited_at and self.created_at and self.edited_at != self.created_at:
             self.edited = True
         return super(AbstractMessage, self).save(*args, **kwargs)
+
+    @classmethod
+    def string_type(self):
+        return _string_type(self)
 
 
 class AbstartPrivateMessage(AbstractMessage):
@@ -71,7 +75,7 @@ class AbstractChat(models.Model):
         abstract = True
 
     def last_message(self):
-        from chat.consts import LAST_MESSAGE, REVERSE_CHAT_TYPES, CHAT_TYPE_TO_MESSAGE_TYPE
+        from chat.consts import LAST_MESSAGE, REVERSE_CHAT_TYPES, CHAT_TYPE_TO_MESSAGE_TYPE, CHAT_TYPES
         model_string_name = REVERSE_CHAT_TYPES[self._meta.model]
         redis_chat_last_message = f'{model_string_name}_{self.id}_{LAST_MESSAGE}'
         exist = r.exists(redis_chat_last_message)
@@ -92,6 +96,10 @@ class AbstractChat(models.Model):
             except ObjectDoesNotExist:
                 return None
 
+    @classmethod
+    def string_type(self):
+        return _string_type(self)
+
 
 class AbstractPrivateChat(AbstractChat):
     first_user = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='%(class)s_first_set')
@@ -103,6 +111,10 @@ class AbstractPrivateChat(AbstractChat):
 
     def __str__(self):
         return f' {self.first_user} and {self.second_user}'
+
+    def clean(self):
+        if self.first_user and self.second_user and self.first_user.id > self.second_user.id:
+            raise ValidationError('The first user must have lower id than the second. Swap users')
 
 
 class PrivateChat(AbstractPrivateChat):

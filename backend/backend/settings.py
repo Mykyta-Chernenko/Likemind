@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'channels',
     'corsheaders',
+    'phonenumber_field',
+    'audiofield',
 
     'users',
     'chat',
@@ -63,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'audiofield.middleware.threadlocals.ThreadLocals'
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -167,6 +170,10 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 # Custom AUTH
 
 AUTH_USER_MODEL = 'users.Person'
+
+AUTHENTICATION_BACKENDS = [
+    'users.backend.PersonBackend',
+]
 
 PUBLIC_KEY_PERSON_ID = os.environ["PUBLIC_KEY_PERSON_ID"]
 DOMAIN = '0.0.0.0:8000'  # Site domain

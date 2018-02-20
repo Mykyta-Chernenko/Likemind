@@ -1,0 +1,86 @@
+[
+{
+  "model": "chat.privatechat",
+  "pk": 1,
+  "fields": {
+    "creation": "2018-02-19T14:20:15.133Z",
+    "last_use": "2018-02-19T14:20:15.133Z",
+    "first_user": [
+      "nikita3"
+    ],
+    "second_user": [
+      "denis4"
+    ]
+  }
+},
+{
+  "model": "chat.privatechat",
+  "pk": 2,
+  "fields": {
+    "creation": "2018-02-19T14:20:18.254Z",
+    "last_use": "2018-02-19T14:20:18.254Z",
+    "first_user": [
+      "denis4"
+    ],
+    "second_user": [
+      "artem5"
+    ]
+  }
+},
+{
+  "model": "chat.privatechat",
+  "pk": 3,
+  "fields": {
+    "creation": "2018-02-19T14:20:23.239Z",
+    "last_use": "2018-02-19T14:20:23.239Z",
+    "first_user": [
+      "nikita3"
+    ],
+    "second_user": [
+      "artem5"
+    ]
+  }
+},
+{
+  "model": "chat.privatechat",
+  "pk": 4,
+  "fields": {
+    "creation": "2018-02-19T14:20:27.665Z",
+    "last_use": "2018-02-19T14:20:27.665Z",
+    "first_user": [
+      "denis4"
+    ],
+    "second_user": [
+      "denis4"
+    ]
+  }
+},
+{
+  "model": "chat.privatechat",
+  "pk": 5,
+  "fields": {
+    "creation": "2018-02-19T14:20:30.522Z",
+    "last_use": "2018-02-19T14:20:30.522Z",
+    "first_user": [
+      "nikita3"
+    ],
+    "second_user": [
+      "nikita3"
+    ]
+  }
+},
+{
+  "model": "chat.privatechat",
+  "pk": 6,
+  "fields": {
+    "creation": "2018-02-19T14:20:34.162Z",
+    "last_use": "2018-02-19T14:20:34.162Z",
+    "first_user": [
+      "artem5"
+    ],
+    "second_user": [
+      "artem5"
+    ]
+  }
+}
+]

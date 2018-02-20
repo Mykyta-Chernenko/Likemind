@@ -32,7 +32,7 @@ class ChatSerializer(serializers.ModelSerializer):
     last_message = MessageObjectRelatedField(read_only=True)
 
     class Meta:
-        fields = ['id', 'creation', 'last_message']
+        fields = ['id', 'creation', 'last_message', 'string_type']
         depth = 1
 
 
@@ -40,7 +40,7 @@ class PrivateChatSerializer(ChatSerializer):
     first_user = UserSerializer(short=True)
     second_user = UserSerializer(short=True)
 
-    class Meta:
+    class Meta(ChatSerializer.Meta):
         model = PrivateChat
         fields = ChatSerializer.Meta.fields + ['first_user', 'second_user']
         depth = 0
@@ -55,35 +55,40 @@ class PrivateChatSerializer(ChatSerializer):
 
 
 class EncryptedPrivateChatSerializer(ChatSerializer):
-    class Meta:
+    class Meta(ChatSerializer.Meta):
         model = EncryptedPrivateChat
         fields = ChatSerializer.Meta.fields + ['keep_time']
 
 
 class GroupChatSerializer(ChatSerializer):
-    class Meta:
+    class Meta(ChatSerializer.Meta):
         model = GroupChat
         fields = ChatSerializer.Meta.fields + ['time']
 
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ['owner', 'text', 'chat', 'created_at', 'edited', 'edited_at']
+        fields = ['id', 'owner', 'text', 'chat', 'created_at', 'edited', 'edited_at']
+        extra_kwargs = {
+            'owner': {'read_only': True},
+            'chat': {'read_only': True},
+            'edited': {'read_only': True},
+        }
 
 
 class PrivateMessageSerializer(MessageSerializer):
-    class Meta:
+    class Meta(MessageSerializer.Meta):
         model = PrivateMessage
         fields = MessageSerializer.Meta.fields
 
 
 class EncryptedPrivateMessageSerializer(MessageSerializer):
-    class Meta:
+    class Meta(MessageSerializer.Meta):
         model = EncryptedPrivateMessage
         fields = MessageSerializer.Meta.fields
 
 
 class GroupMessageSerializer(MessageSerializer):
-    class Meta:
+    class Meta(MessageSerializer.Meta):
         model = GroupMessage
         fields = MessageSerializer.Meta.fields

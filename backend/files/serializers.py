@@ -1,7 +1,11 @@
 import json
 from collections import OrderedDict
+from copy import deepcopy
 
+import os
+from audiofield.fields import AudioField
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import empty
 
 from chat.models import PrivateChat, PrivateMessage, GroupChat, EncryptedPrivateChat
@@ -30,27 +34,44 @@ class ChatObjectRelatedField(serializers.RelatedField):
         return serializer.data
 
 
-class ChatFileSerializer(serializers.ModelSerializer):
+class _ChatFileSerializer(serializers.ModelSerializer):
     chat = ChatObjectRelatedField(read_only=True)
 
     class Meta:
+        fields = ['id', 'chat', 'owner']
+        extra_kwargs = {
+            'owner': {'read_only': True}
+        }
+
+
+class ChatFileSerializer(_ChatFileSerializer):
+    class Meta(_ChatFileSerializer.Meta):
         model = ChatFile
-        fields = ['file', 'chat']
+        fields = _ChatFileSerializer.Meta.fields + ['file']
 
 
-class ChatImageSerializer(serializers.ModelSerializer):
-    class Meta:
+class ChatImageSerializer(_ChatFileSerializer):
+    class Meta(_ChatFileSerializer.Meta):
         model = ChatImage
-        fields = ['chat', 'image']
+        fields = _ChatFileSerializer.Meta.fields + ['image']
 
 
-class ChatVideoSerializer(serializers.ModelSerializer):
-    class Meta:
+class ChatVideoSerializer(_ChatFileSerializer):
+    class Meta(_ChatFileSerializer.Meta):
         model = ChatVideo
-        fields = ['chat', 'video']
+        fields = _ChatFileSerializer.Meta.fields + ['video']
 
 
-class ChatAudioSerializer(serializers.ModelSerializer):
-    class Meta:
+class ChatAudioSerializer(_ChatFileSerializer):
+    class Meta(_ChatFileSerializer.Meta):
         model = ChatAudio
-        fields = ['chat', 'audio']
+        fields = _ChatFileSerializer.Meta.fields + ['audio']
+
+    def validate_audio(self, value):
+        filename = value.name
+        ext = os.path.splitext(filename)[1]
+        ext = ext.lower()
+        if ext not in ChatAudio.audio.field.ext_whitelist:
+            error_msg = "not allowed filetype!"
+            raise ValidationError(error_msg)
+        return value
