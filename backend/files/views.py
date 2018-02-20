@@ -8,6 +8,7 @@ from rest_framework.generics import CreateAPIView, ListAPIView, get_object_or_40
 from chat.consts import TEXT_MESSAGE, REVERSE_CHAT_TYPES
 from files.models import ChatFile
 from files.serializers import ChatFileSerializer
+from utils.websocket_utils import WebSocketEvent
 
 
 class ChatFileList(CreateAPIView, ListAPIView):
@@ -33,24 +34,28 @@ class ChatFileList(CreateAPIView, ListAPIView):
         file = result.data['file']
         content = f'file can be downloaded via link <a href="{file}"></a>'
         channel_layer = channels.layers.get_channel_layer()
-        time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%s')
+        time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        model = kwargs.get('chat_model')
+        model_name = REVERSE_CHAT_TYPES[model]
+        model_string_name = f'{model_name}-{object_id}'
         data = {
             'action_type': TEXT_MESSAGE,
             'action': {
+                'chat_type': model_name,
                 'chat': chat['id'],
                 'owner': request.user.id,
                 'created_at': time,
                 'text': content,
                 'edited': False,
+                'edited_at': time
             }
         }
         chat_data = deepcopy(data)
         chat_data['type'] = 'chat.message'
+        chat_data = WebSocketEvent(chat_data['action_type'], chat_data['action'], chat_data['type']).to_dict_flat()
         user_data = deepcopy(data)
         user_data['type'] = 'user.event'
-        model = kwargs.get('chat_model')
-        model_string_name = f'{REVERSE_CHAT_TYPES[model]}-{object_id}'
-        print(channel_layer.group_send, model_string_name, chat_data)
+        user_data = WebSocketEvent(user_data['action_type'], user_data['action'], user_data['type']).to_dict()
         async_to_sync(channel_layer.group_send)(model_string_name, chat_data)
         return result
 
