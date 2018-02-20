@@ -1,0 +1,74 @@
+[
+{
+  "model": "users.friend",
+  "pk": 1,
+  "fields": {
+    "first": [
+      "nikita3"
+    ],
+    "second": [
+      "denis4"
+    ]
+  }
+},
+{
+  "model": "users.friend",
+  "pk": 2,
+  "fields": {
+    "first": [
+      "denis4"
+    ],
+    "second": [
+      "nikita3"
+    ]
+  }
+},
+{
+  "model": "users.friend",
+  "pk": 3,
+  "fields": {
+    "first": [
+      "nikita3"
+    ],
+    "second": [
+      "artem5"
+    ]
+  }
+},
+{
+  "model": "users.friend",
+  "pk": 4,
+  "fields": {
+    "first": [
+      "artem5"
+    ],
+    "second": [
+      "nikita3"
+    ]
+  }
+},
+{
+  "model": "users.friend",
+  "pk": 5,
+  "fields": {
+    "first": [
+      "denis4"
+    ],
+    "second": [
+      "artem5"
+    ]
+  }
+},
+{
+  "model": "users.friend",
+  "pk": 6,
+  "fields": {
+    "first": [
+      "artem5"
+    ],
+    "second": [
+      "denis4"
+    ]
+  }
+}
+]
