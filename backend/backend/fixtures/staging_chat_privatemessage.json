@@ -1,0 +1,58 @@
+[
+{
+  "model": "chat.privatemessage",
+  "pk": 1,
+  "fields": {
+    "text": "ggggg2222",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-20T23:08:44.944Z",
+    "edited": true,
+    "edited_at": "2018-02-20T23:08:51.702Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 2,
+  "fields": {
+    "text": "denis",
+    "owner": [
+      "denis4"
+    ],
+    "created_at": "2018-02-20T23:09:09.555Z",
+    "edited": false,
+    "edited_at": "2018-02-20T23:09:09.555Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 3,
+  "fields": {
+    "text": "gfds",
+    "owner": [
+      "artem5"
+    ],
+    "created_at": "2018-02-20T23:09:28.109Z",
+    "edited": false,
+    "edited_at": "2018-02-20T23:09:28.109Z",
+    "chat": 3
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 4,
+  "fields": {
+    "text": "tttt",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-20T23:09:42.225Z",
+    "edited": false,
+    "edited_at": "2018-02-20T23:09:42.225Z",
+    "chat": 3
+  }
+}
+]

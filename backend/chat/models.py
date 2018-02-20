@@ -112,6 +112,10 @@ class AbstractPrivateChat(AbstractChat):
     def __str__(self):
         return f' {self.first_user} and {self.second_user}'
 
+    def clean(self):
+        if self.first_user and self.second_user and self.first_user.id > self.second_user.id:
+            raise ValidationError('The first user must have lower id than the second. Swap users')
+
 
 class PrivateChat(AbstractPrivateChat):
     class Meta(AbstractChat.Meta):
