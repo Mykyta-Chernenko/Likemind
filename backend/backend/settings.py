@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'channels',
     'corsheaders',
     'phonenumber_field',
+    'audiofield',
 
     'users',
     'chat',
@@ -64,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'audiofield.middleware.threadlocals.ThreadLocals'
 ]
 
 ROOT_URLCONF = 'backend.urls'

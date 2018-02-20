@@ -10,7 +10,7 @@ from backend.settings import _redis as r
 from channels.generic.websocket import JsonWebsocketConsumer
 from django.db.models import Q
 
-from chat.consts import LAST_MESSAGE, TEXT_MESSAGE, PRIVATE_CHAT
+from chat.consts import LAST_MESSAGE, CHAT_TEXT_MESSAGE, PRIVATE_CHAT
 from chat.models import PrivateChat, PrivateMessage
 from users.consts import USER
 from users.models import Person, Friend
@@ -68,10 +68,12 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
         print(f'chat {pc.id} {content[:10]} from {from_user} to {to_user}')
         group_name = f'{PRIVATE_CHAT}-{pc.id}'
         try:
+            pm = PrivateMessage.objects.create(chat=pc, text=content, owner=from_user)
             time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
             data = {
-                'action_type': TEXT_MESSAGE,
+                'action_type': CHAT_TEXT_MESSAGE,
                 'action': {
+                    'id': pm.id,
                     'chat_type': PRIVATE_CHAT,
                     'chat': pc.id,
                     'owner': from_user.id,
@@ -95,7 +97,6 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
             redis_last_message_name = f'{group_name}-{LAST_MESSAGE}'
             r.hmset(redis_last_message_name,
                     WebSocketEvent(data['action_type'], data['action']).to_dict_flat())
-            PrivateMessage.objects.create(chat=pc, text=content, owner=from_user)
         except Exception as e:
             print('Exeption on message in private chat' + str(e))
             async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
@@ -119,6 +120,7 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
 
     def chat_message(self, event):
         print('chat message')
+        event.pop('type')
         self.send_json(event)
 
 
@@ -142,4 +144,5 @@ class UserEventsConsumer(JsonWebsocketConsumer):
 
     def user_event(self, event):
         print('send user message')
+        event.pop('type')
         self.send_json(event)

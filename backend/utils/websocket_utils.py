@@ -1,10 +1,11 @@
 from copy import deepcopy
 from datetime import datetime
 
-from chat.consts import TEXT_MESSAGE, CHAT_TYPES
+from chat.consts import CHAT_TEXT_MESSAGE, CHAT_TYPES, CHAT_AUDIO_MESSAGE, CHAT_FILE_MESSAGE, CHAT_IMAGE_MESSAGE, \
+    CHAT_VIDEO_MESSAGE
 from chat.consumers import CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT
 
-action_types = [TEXT_MESSAGE]
+action_types = [CHAT_TEXT_MESSAGE, CHAT_IMAGE_MESSAGE, CHAT_VIDEO_MESSAGE, CHAT_FILE_MESSAGE, CHAT_AUDIO_MESSAGE]
 event_types = [CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT]
 
 
@@ -23,9 +24,10 @@ class WebSocketEvent(dict):
         if type:
             self.type = type
         _action = {}
-        if action_type == TEXT_MESSAGE:
+        if action_type == CHAT_TEXT_MESSAGE:
             _action['chat_type'] = action['chat_type']
             _action['chat'] = int(action['chat'])
+            _action['id'] = int(action['id'])
             _action['owner'] = int(action['owner'])
             _action['created_at'] = datetime.strftime(
                 action['created_at'] \
