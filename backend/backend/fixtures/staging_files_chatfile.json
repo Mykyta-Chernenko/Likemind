@@ -1,0 +1,18 @@
+[
+{
+  "model": "files.chatfile",
+  "pk": 1,
+  "fields": {
+    "content_type": [
+      "chat",
+      "privatechat"
+    ],
+    "object_id": 1,
+    "owner": [
+      "admin"
+    ],
+    "description": null,
+    "file": "staging/files/chatfile/x_PbMmmaD.svg"
+  }
+}
+]

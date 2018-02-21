@@ -7,6 +7,7 @@ from chat.models import PrivateChat, PrivateMessage, EncryptedPrivateMessage, Gr
     GroupChat
 from backend.settings import _redis as r
 from chat.consumers import LAST_MESSAGE, PRIVATE_CHAT
+from files.models import ChatImage, ChatAudio, ChatVideo, ChatFile
 from users.serializers import UserSerializer
 
 
@@ -30,10 +31,21 @@ class MessageObjectRelatedField(serializers.RelatedField):
 
 class ChatSerializer(serializers.ModelSerializer):
     last_message = MessageObjectRelatedField(read_only=True)
-
+    images = serializers.PrimaryKeyRelatedField(
+        queryset=ChatImage.objects.all(), many=True
+    )
+    audios= serializers.PrimaryKeyRelatedField(
+        queryset=ChatAudio.objects.all(), many=True
+    )
+    videos = serializers.PrimaryKeyRelatedField(
+        queryset=ChatVideo.objects.all(), many=True
+    )
+    files = serializers.PrimaryKeyRelatedField(
+        queryset=ChatFile.objects.all(), many=True
+    )
     class Meta:
-        fields = ['id', 'creation', 'last_message', 'string_type']
-        depth = 1
+        fields = ['id', 'creation', 'last_message', 'string_type', 'images','audios','videos','files']
+        depth = 2
 
 
 class PrivateChatSerializer(ChatSerializer):

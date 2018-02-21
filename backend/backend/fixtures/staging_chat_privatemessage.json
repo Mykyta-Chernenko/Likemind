@@ -1,58 +1,996 @@
 [
 {
   "model": "chat.privatemessage",
-  "pk": 1,
+  "pk": 7,
   "fields": {
-    "text": "ggggg2222",
+    "text": "ffff",
     "owner": [
       "nikita3"
     ],
-    "created_at": "2018-02-20T23:08:44.944Z",
-    "edited": true,
-    "edited_at": "2018-02-20T23:08:51.702Z",
+    "created_at": "2018-02-21T13:33:33.984Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:33:33.984Z",
     "chat": 1
   }
 },
 {
   "model": "chat.privatemessage",
-  "pk": 2,
+  "pk": 8,
   "fields": {
-    "text": "denis",
+    "text": "ss",
     "owner": [
-      "denis4"
+      "nikita3"
     ],
-    "created_at": "2018-02-20T23:09:09.555Z",
+    "created_at": "2018-02-21T13:33:41.586Z",
     "edited": false,
-    "edited_at": "2018-02-20T23:09:09.555Z",
+    "edited_at": "2018-02-21T13:33:41.586Z",
     "chat": 1
   }
 },
 {
   "model": "chat.privatemessage",
-  "pk": 3,
+  "pk": 9,
   "fields": {
-    "text": "gfds",
+    "text": "ss",
     "owner": [
-      "artem5"
+      "nikita3"
     ],
-    "created_at": "2018-02-20T23:09:28.109Z",
+    "created_at": "2018-02-21T13:33:44.348Z",
     "edited": false,
-    "edited_at": "2018-02-20T23:09:28.109Z",
+    "edited_at": "2018-02-21T13:33:44.348Z",
     "chat": 3
   }
 },
 {
   "model": "chat.privatemessage",
-  "pk": 4,
+  "pk": 10,
   "fields": {
-    "text": "tttt",
+    "text": "ss",
     "owner": [
       "nikita3"
     ],
-    "created_at": "2018-02-20T23:09:42.225Z",
+    "created_at": "2018-02-21T13:34:14.036Z",
     "edited": false,
-    "edited_at": "2018-02-20T23:09:42.225Z",
-    "chat": 3
+    "edited_at": "2018-02-21T13:34:14.036Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 11,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:14.463Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:14.463Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 12,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:14.635Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:14.635Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 13,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:14.794Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:14.794Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 14,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:14.968Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:14.968Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 15,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:15.141Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:15.141Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 16,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:15.284Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:15.284Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 17,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:15.456Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:15.456Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 18,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:15.624Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:15.624Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 19,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:15.805Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:15.805Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 20,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:15.963Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:15.963Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 21,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:16.138Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:16.138Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 22,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:16.324Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:16.324Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 23,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:16.483Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:16.483Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 24,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:16.656Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:16.657Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 25,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:16.835Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:16.836Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 26,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:17.008Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:17.008Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 27,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:17.191Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:17.191Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 28,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:17.369Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:17.370Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 29,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:17.553Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:17.554Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 30,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:17.747Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:17.747Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 31,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:17.932Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:17.932Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 32,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:18.098Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:18.098Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 33,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:18.266Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:18.266Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 34,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:18.433Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:18.433Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 35,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:18.605Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:18.605Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 36,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:18.777Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:18.777Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 37,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:18.952Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:18.952Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 38,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:19.145Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:19.145Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 39,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:19.323Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:19.323Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 40,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:19.496Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:19.496Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 41,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:19.669Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:19.669Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 42,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:19.834Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:19.835Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 43,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:19.999Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:19.999Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 44,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:20.187Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:20.187Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 45,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:20.361Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:20.361Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 46,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:20.534Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:20.534Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 47,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:20.715Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:20.715Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 48,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:20.887Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:20.887Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 49,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:21.084Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:21.084Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 50,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:21.266Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:21.266Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 51,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:21.441Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:21.441Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 52,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:21.619Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:21.619Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 53,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:21.820Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:21.820Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 54,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:22.002Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:22.002Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 55,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:22.194Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:22.194Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 56,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:22.375Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:22.375Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 57,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:22.568Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:22.568Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 58,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:22.769Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:22.769Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 59,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:22.964Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:22.964Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 60,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:23.126Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:23.126Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 61,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:23.340Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:23.340Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 62,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:23.521Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:23.521Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 63,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:23.705Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:23.705Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 64,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:23.872Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:23.872Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 65,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:24.041Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:24.041Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 66,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:24.219Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:24.219Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 67,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:24.408Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:24.408Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 68,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:24.609Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:24.609Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 69,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:24.809Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:24.809Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 70,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:24.994Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:24.994Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 71,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:25.210Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:25.210Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 72,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:25.405Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:25.405Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 73,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:25.616Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:25.616Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 74,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:25.819Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:25.819Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 75,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:26.018Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:26.018Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 76,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:26.202Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:26.202Z",
+    "chat": 1
+  }
+},
+{
+  "model": "chat.privatemessage",
+  "pk": 77,
+  "fields": {
+    "text": "ss",
+    "owner": [
+      "nikita3"
+    ],
+    "created_at": "2018-02-21T13:34:26.378Z",
+    "edited": false,
+    "edited_at": "2018-02-21T13:34:26.378Z",
+    "chat": 1
   }
 }
 ]

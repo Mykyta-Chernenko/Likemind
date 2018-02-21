@@ -38,7 +38,7 @@ class _ChatFileSerializer(serializers.ModelSerializer):
     chat = ChatObjectRelatedField(read_only=True)
 
     class Meta:
-        fields = ['id', 'chat', 'owner']
+        fields = ['id', 'chat', 'owner', 'description']
         extra_kwargs = {
             'owner': {'read_only': True}
         }
@@ -66,12 +66,3 @@ class ChatAudioSerializer(_ChatFileSerializer):
     class Meta(_ChatFileSerializer.Meta):
         model = ChatAudio
         fields = _ChatFileSerializer.Meta.fields + ['audio']
-
-    def validate_audio(self, value):
-        filename = value.name
-        ext = os.path.splitext(filename)[1]
-        ext = ext.lower()
-        if ext not in ChatAudio.audio.field.ext_whitelist:
-            error_msg = "not allowed filetype!"
-            raise ValidationError(error_msg)
-        return value

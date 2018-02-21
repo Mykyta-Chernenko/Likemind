@@ -1,0 +1,18 @@
+[
+{
+  "model": "files.chatvideo",
+  "pk": 1,
+  "fields": {
+    "content_type": [
+      "chat",
+      "privatechat"
+    ],
+    "object_id": 1,
+    "owner": [
+      "admin"
+    ],
+    "description": null,
+    "video": "staging/files/chatvideo/SampleVideo_1280x720_1mb.flv"
+  }
+}
+]

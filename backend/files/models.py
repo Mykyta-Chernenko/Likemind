@@ -1,6 +1,6 @@
-from audiofield.fields import AudioField
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import RegexValidator
 from django.db import models
 
 from backend import settings
@@ -16,6 +16,7 @@ class _ChatFile(models.Model):
     object_id = models.PositiveIntegerField()
     chat = GenericForeignKey()
     owner = models.ForeignKey(Person, on_delete=models.CASCADE)
+    description = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -30,8 +31,9 @@ class ChatImage(_ChatFile):
 
 
 class ChatAudio(_ChatFile):
-    audio = AudioField(upload_to='chat_audios/%y/%m/%d', ext_whitelist=(".mp3", ".wav", ".ogg"),
-                             help_text=("Allowed type - .mp3, .wav, .ogg"))
+    audio = models.FileField(upload_to='chat_audios/%y/%m/%d',
+                       help_text=("Allowed type - .mp3, .wav, .ogg"),
+                       validators=[RegexValidator(regex=r'(\.mp3|\.wav|\.ogg)$')])
 
     def audio_file_player(self):
         """audio player tag for admin"""
@@ -45,7 +47,7 @@ class ChatAudio(_ChatFile):
     audio_file_player.short_description = ('Audio file player')
 
 
-
-
 class ChatVideo(_ChatFile):
-    video = models.FileField(upload_to='chat_videos/%y/%m/%d')
+    video = models.FileField(upload_to='chat_videos/%y/%m/%d',
+                             help_text=("Allowed type - .avi, .flv, .mwv, .mov, .mp4"),
+                             validators=[RegexValidator(regex=r'(\.avi|\.flv|\.mwv|\.mov|\.mp4)$')])

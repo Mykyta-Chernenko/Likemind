@@ -31,10 +31,11 @@ class _ChatFileList(CreateAPIView, ListAPIView):
 
     def create(self, request, *args, **kwargs):
         content_type, object_id = self.get_chat(**kwargs)
-        request.data['content_type'] = content_type.id
-        request.data['object_id'] = object_id
+        if request.data:
+            request.data['content_type'] = content_type.id
+            request.data['object_id'] = object_id
         result = super(_ChatFileList, self).create(request, *args, **kwargs)
-        time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
         chat = result.data['chat']
         file = result.data[self.field]
         id = result.data['id']

@@ -32,15 +32,15 @@ class WebSocketEvent(dict):
             _action['created_at'] = datetime.strftime(
                 action['created_at'] \
                     if isinstance(action['created_at'], datetime) \
-                    else datetime.strptime(action['created_at'], '%Y-%m-%dT%H:%M:%S'),
-                '%Y-%m-%dT%H:%M:%S')
+                    else datetime.strptime(action['created_at'], '%Y-%m-%dT%H:%M:%SZ'),
+                '%Y-%m-%dT%H:%M:%SZ')
             _action['text'] = str(action['text'])
             _action['edited'] = bool(action['edited'])
             _action['edited_at'] = datetime.strftime(
                 action['edited_at'] \
                     if isinstance(action['edited_at'], datetime) \
-                    else datetime.strptime(action['edited_at'], '%Y-%m-%dT%H:%M:%S'),
-                '%Y-%m-%dT%H:%M:%S')
+                    else datetime.strptime(action['edited_at'], '%Y-%m-%dT%H:%M:%SZ'),
+                '%Y-%m-%dT%H:%M:%SZ')
         self.action = _action
 
     def to_dict(self):
