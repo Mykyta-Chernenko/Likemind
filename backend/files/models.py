@@ -5,6 +5,7 @@ from django.db import models
 
 from backend import settings
 from users.models import Person
+from utils.models_methods import _string_type
 
 chat_limit = models.Q(app_label='chat', model='PrivateChat') | \
              models.Q(app_label='chat', model='EncryptedPrivateChat') | \
@@ -17,9 +18,14 @@ class _ChatFile(models.Model):
     chat = GenericForeignKey()
     owner = models.ForeignKey(Person, on_delete=models.CASCADE)
     description = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         abstract = True
+
+    @classmethod
+    def string_type(cls):
+        return _string_type(cls)
 
 
 class ChatFile(_ChatFile):
@@ -32,8 +38,8 @@ class ChatImage(_ChatFile):
 
 class ChatAudio(_ChatFile):
     audio = models.FileField(upload_to='chat_audios/%y/%m/%d',
-                       help_text=("Allowed type - .mp3, .wav, .ogg"),
-                       validators=[RegexValidator(regex=r'(\.mp3|\.wav|\.ogg)$')])
+                             help_text=("Allowed type - .mp3, .wav, .ogg"),
+                             validators=[RegexValidator(regex=r'(\.mp3|\.wav|\.ogg)$')])
 
     def audio_file_player(self):
         """audio player tag for admin"""

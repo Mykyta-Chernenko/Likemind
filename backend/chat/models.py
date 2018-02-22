@@ -26,8 +26,12 @@ class AbstractMessage(models.Model):
         return super(AbstractMessage, self).save(*args, **kwargs)
 
     @classmethod
-    def string_type(self):
-        return _string_type(self)
+    def string_type(cls):
+        return _string_type(cls)
+
+    @classmethod
+    def get_serializer(cls):
+        raise NotImplementedError('override get_serializer')
 
 
 class AbstartPrivateMessage(AbstractMessage):
@@ -44,6 +48,11 @@ class PrivateMessage(AbstractMessage):
             raise ValidationError("User doesn't belong to chat")
         super(PrivateMessage, self).clean()
 
+    @classmethod
+    def get_serializer(cls):
+        from chat.serializers import PrivateMessageSerializer
+        return PrivateMessageSerializer
+
 
 class EncryptedPrivateMessage(AbstractMessage):
     chat = models.ForeignKey('EncryptedPrivateChat', on_delete=models.CASCADE, related_name='message_set')
@@ -58,9 +67,19 @@ class EncryptedPrivateMessage(AbstractMessage):
             raise ValidationError("User doesn't belong to chat")
         super(EncryptedPrivateMessage, self).clean()
 
+    @classmethod
+    def get_serializer(cls):
+        from chat.serializers import EncryptedPrivateMessageSerializer
+        return EncryptedPrivateMessageSerializer
+
 
 class GroupMessage(AbstractMessage):
     chat = models.ForeignKey('GroupChat', on_delete=models.CASCADE, related_name='message_set')
+
+    @classmethod
+    def get_serializer(cls):
+        from chat.serializers import GroupMessageSerializer
+        return GroupMessageSerializer
 
 
 class AbstractChat(models.Model):
@@ -100,6 +119,10 @@ class AbstractChat(models.Model):
     def string_type(self):
         return _string_type(self)
 
+    @classmethod
+    def get_serializer(cls):
+        raise NotImplementedError('override get_serializer')
+
 
 class AbstractPrivateChat(AbstractChat):
     first_user = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='%(class)s_first_set')
@@ -121,6 +144,11 @@ class PrivateChat(AbstractPrivateChat):
     class Meta(AbstractChat.Meta):
         verbose_name = 'private-chat'
 
+    @classmethod
+    def get_serializer(cls):
+        from chat.serializers import PrivateChatSerializer
+        return PrivateChatSerializer
+
 
 class EncryptedPrivateChat(AbstractPrivateChat):
     keep_time = models.DurationField(default=datetime.timedelta(minutes=1))
@@ -128,9 +156,19 @@ class EncryptedPrivateChat(AbstractPrivateChat):
     class Meta(AbstractPrivateChat.Meta):
         verbose_name = 'encrypted-private-chat'
 
+    @classmethod
+    def get_serializer(cls):
+        from chat.serializers import EncryptedPrivateMessageSerializer
+        return EncryptedPrivateMessageSerializer
+
 
 class GroupChat(AbstractChat):
     name = models.CharField(max_length=255)
 
     class Meta(AbstractChat.Meta):
         verbose_name = 'group-chat'
+
+    @classmethod
+    def get_serializer(cls):
+        from chat.serializers import GroupChatSerializer
+        return GroupChatSerializer

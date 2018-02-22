@@ -1,610 +1,88 @@
 [
-{
-  "model": "files.chataudio",
-  "pk": 1,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.4mb.mp3"
+  {
+    "model": "files.chataudio",
+    "pk": 1,
+    "fields": {
+      "content_type": [
+        "chat",
+        "privatechat"
+      ],
+      "object_id": 1,
+      "owner": [
+        "admin"
+      ],
+      "description": null,
+      "created_at": "2018-02-21T13:33:32.984Z",
+      "audio": "staging/files/chataudio/SampleAudio_0.4mb.mp3"
+    }
+  },
+  {
+    "model": "files.chataudio",
+    "pk": 2,
+    "fields": {
+      "content_type": [
+        "chat",
+        "privatechat"
+      ],
+      "object_id": 1,
+      "owner": [
+        "admin"
+      ],
+      "description": null,
+      "created_at": "2018-02-21T13:33:34.984Z",
+      "audio": "staging/files/chataudio/SampleAudio_0.4mb_6VeW6no.mp3"
+    }
+  },
+  {
+    "model": "files.chataudio",
+    "pk": 3,
+    "fields": {
+      "content_type": [
+        "chat",
+        "privatechat"
+      ],
+      "object_id": 1,
+      "owner": [
+        "admin"
+      ],
+      "description": null,
+      "created_at": "2018-02-21T13:33:37.984Z",
+      "audio": "staging/files/chataudio/SampleAudio_0.4mb_qZQFVii.mp3"
+    }
+  },
+  {
+    "model": "files.chataudio",
+    "pk": 4,
+    "fields": {
+      "content_type": [
+        "chat",
+        "privatechat"
+      ],
+      "object_id": 1,
+      "owner": [
+        "admin"
+      ],
+      "description": null,
+      "created_at": "2018-02-21T13:33:30.984Z",
+      "audio": "staging/files/chataudio/SampleAudio_0.4mb_ontr38P.mp3"
+    }
+  },
+  {
+    "model": "files.chataudio",
+    "pk": 5,
+    "fields": {
+      "content_type": [
+        "chat",
+        "privatechat"
+      ],
+      "object_id": 1,
+      "owner": [
+        "admin"
+      ],
+      "description": null,
+      "created_at": "2018-02-21T13:31:32.984Z",
+      "audio": "staging/files/chataudio/Egfatt_Lists.xlsx"
+    }
   }
-},
-{
-  "model": "files.chataudio",
-  "pk": 2,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.4mb_6VeW6no.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 3,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.4mb_qZQFVii.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 4,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.4mb_ontr38P.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 5,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/Egfatt_Lists.xlsx"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 6,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/myproject_web.sh"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 7,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/Egfatt_Lists_obgs28D.xlsx"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 8,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.4mb_ThN9xnK.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 9,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.4mb_uWFQLlu.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 10,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/myproject_web.sh"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 11,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/pycharm64.vmoptions"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 12,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/logo.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 13,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/_logo.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 14,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/logo_0fg1LHs.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 15,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/Egfatt_Lists_yrMCkHU.xlsx"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 16,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/env"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 17,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/_env"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 18,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/logo_uoWPJSg.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 19,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/logo_3KAlSpy.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 20,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/logo_2vmyEZ1.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 21,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/logo_rvDeylC.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 22,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/logo_9YdIc29.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 23,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/logo_qrwHUj9.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 24,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/logo_uiW0Lwo.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 25,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/logo_pVk2QbX.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 26,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/logo_vyH0mBM.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 27,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/logo_TZsCGMW.png"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 28,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.4mb_rlSOcCq.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 29,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.4mb_reVXdFc.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 30,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.4mb_v1GUXUs.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 31,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.4mb_o4AVmxQ.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 32,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.4mb_1CR0nP4.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 33,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.4mb_TNXh59t.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 64,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.7mb.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 65,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/_SampleAudio_0.7mb.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 66,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": "test",
-    "audio": "staging/files/chataudio/SampleAudio_0.7mb_VDwhZwp.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 67,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.7mb_EZwLDaJ.mp3"
-  }
-},
-{
-  "model": "files.chataudio",
-  "pk": 68,
-  "fields": {
-    "content_type": [
-      "chat",
-      "privatechat"
-    ],
-    "object_id": 1,
-    "owner": [
-      "admin"
-    ],
-    "description": null,
-    "audio": "staging/files/chataudio/SampleAudio_0.7mb_tqQCabB.mp3"
-  }
-}
 ]
+

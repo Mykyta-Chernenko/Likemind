@@ -35,7 +35,7 @@ class _ChatFileList(CreateAPIView, ListAPIView):
             request.data['content_type'] = content_type.id
             request.data['object_id'] = object_id
         result = super(_ChatFileList, self).create(request, *args, **kwargs)
-        time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
+        time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         chat = result.data['chat']
         file = result.data[self.field]
         id = result.data['id']

@@ -1,7 +1,7 @@
 from django.urls import path
 
 from chat.views import PrivateChatList, PrivateMessageList, PrivateMessageDetail, EncryptedPrivateMessageList, \
-    GroupMessageList
+    GroupMessageList, ChatContent
 
 urlpatterns = [
     path('private-chats/', PrivateChatList.as_view(), name='private-chat-list'),
@@ -11,4 +11,5 @@ urlpatterns = [
     path('encrypted-private-messages/detail/<int:pk>/', EncryptedPrivateMessageList.as_view(), name='encrypted-private-message-detail'),
     path('group-messages/list/<int:chat_id>/', GroupMessageList.as_view(), name='group-message-list'),
     path('group-messages/detail/<int:pk>/', GroupMessageList.as_view(), name='group-message-detail'),
+    path('chat/<chat_type:chat_model>/<int:chat_id>/content/', ChatContent.as_view(), name='chat-content-list'),
 ]

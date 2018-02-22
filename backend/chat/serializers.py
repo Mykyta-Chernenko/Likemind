@@ -13,10 +13,7 @@ from users.serializers import UserSerializer
 
 class MessageObjectRelatedField(serializers.RelatedField):
     def to_representation(self, value):
-        """
-        Serialize bookmark instances using a bookmark serializer,
-        and note instances using a note serializer.
-        """
+
         if isinstance(value, PrivateMessage):
             serializer = PrivateMessageSerializer(value)
         elif isinstance(value, EncryptedPrivateMessage):
@@ -34,7 +31,7 @@ class ChatSerializer(serializers.ModelSerializer):
     images = serializers.PrimaryKeyRelatedField(
         queryset=ChatImage.objects.all(), many=True
     )
-    audios= serializers.PrimaryKeyRelatedField(
+    audios = serializers.PrimaryKeyRelatedField(
         queryset=ChatAudio.objects.all(), many=True
     )
     videos = serializers.PrimaryKeyRelatedField(
@@ -43,22 +40,21 @@ class ChatSerializer(serializers.ModelSerializer):
     files = serializers.PrimaryKeyRelatedField(
         queryset=ChatFile.objects.all(), many=True
     )
+
     class Meta:
-        fields = ['id', 'creation', 'last_message', 'string_type', 'images','audios','videos','files']
+        fields = ['id', 'creation', 'last_message', 'string_type', 'images', 'audios', 'videos', 'files']
         depth = 2
 
 
-class PrivateChatSerializer(ChatSerializer):
+class _PrivateChatSeriliazer(ChatSerializer):
     first_user = UserSerializer(short=True)
     second_user = UserSerializer(short=True)
 
-    class Meta(ChatSerializer.Meta):
-        model = PrivateChat
+    class Meta:
         fields = ChatSerializer.Meta.fields + ['first_user', 'second_user']
-        depth = 0
 
     def __init__(self, *args, short=False, **kwargs):
-        super(PrivateChatSerializer, self).__init__(*args, **kwargs)
+        super(_PrivateChatSeriliazer, self).__init__(*args, **kwargs)
         if short:
             if 'first_user' in self.fields:
                 self.fields.pop('first_user')
@@ -66,10 +62,19 @@ class PrivateChatSerializer(ChatSerializer):
                 self.fields.pop('second_user')
 
 
-class EncryptedPrivateChatSerializer(ChatSerializer):
+class PrivateChatSerializer(_PrivateChatSeriliazer):
+    class Meta(_PrivateChatSeriliazer.Meta):
+        model = PrivateChat
+        fields = _PrivateChatSeriliazer.Meta.fields
+        depth = 0
+
+
+
+
+class EncryptedPrivateChatSerializer(_PrivateChatSeriliazer):
     class Meta(ChatSerializer.Meta):
         model = EncryptedPrivateChat
-        fields = ChatSerializer.Meta.fields + ['keep_time']
+        fields = _PrivateChatSeriliazer.Meta.fields + ['keep_time']
 
 
 class GroupChatSerializer(ChatSerializer):
@@ -80,7 +85,7 @@ class GroupChatSerializer(ChatSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ['id', 'owner', 'text', 'chat', 'created_at', 'edited', 'edited_at']
+        fields = ['id', 'owner', 'text', 'chat', 'created_at', 'edited', 'edited_at', 'string_type']
         extra_kwargs = {
             'owner': {'read_only': True},
             'chat': {'read_only': True},

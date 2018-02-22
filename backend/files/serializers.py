@@ -3,7 +3,6 @@ from collections import OrderedDict
 from copy import deepcopy
 
 import os
-from audiofield.fields import AudioField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import empty
@@ -38,7 +37,7 @@ class _ChatFileSerializer(serializers.ModelSerializer):
     chat = ChatObjectRelatedField(read_only=True)
 
     class Meta:
-        fields = ['id', 'chat', 'owner', 'description']
+        fields = ['id', 'chat', 'owner', 'description', 'created_at', 'string_type']
         extra_kwargs = {
             'owner': {'read_only': True}
         }
@@ -66,3 +65,4 @@ class ChatAudioSerializer(_ChatFileSerializer):
     class Meta(_ChatFileSerializer.Meta):
         model = ChatAudio
         fields = _ChatFileSerializer.Meta.fields + ['audio']
+

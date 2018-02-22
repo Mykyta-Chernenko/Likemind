@@ -69,7 +69,7 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
         group_name = f'{PRIVATE_CHAT}-{pc.id}'
         try:
             pm = PrivateMessage.objects.create(chat=pc, text=content, owner=from_user)
-            time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
+            time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
             data = {
                 'action_type': CHAT_TEXT_MESSAGE,
                 'action': {

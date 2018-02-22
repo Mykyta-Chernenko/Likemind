@@ -1,14 +1,24 @@
+import json
+from collections import OrderedDict
+from itertools import chain
+
+from datetime import datetime
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.shortcuts import render
+from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView, GenericAPIView, UpdateAPIView, RetrieveAPIView, \
     DestroyAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK
 
 from chat.models import PrivateChat, PrivateMessage, EncryptedPrivateMessage, GroupMessage
 from chat.paginations import MessageListPagination
 from chat.permissions import AllowMessageToOwner
 from chat.serializers import PrivateChatSerializer, PrivateMessageSerializer, EncryptedPrivateMessageSerializer, \
     GroupMessageSerializer
+from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatVideoSerializer, ChatAudioSerializer
 
 MESSAGE_MAX_NUMBER = 1000
 DEFAULT_MESSAGE_NUMBER = 20
@@ -76,3 +86,58 @@ class EncryptedMessageDetail(MessageDetail):
 class GroupMessageDetail(MessageDetail):
     queryset = GroupMessage.objects.all()
     serializer_class = GroupMessageSerializer
+
+
+class ChatContent(ListAPIView):
+    page_size = 20
+    max_page_size = 200
+
+    def get_chat(self, **kwargs):
+        if kwargs:
+            model = kwargs.get('chat_model')
+            model_id = kwargs.get('chat_id')
+        else:
+            model = self.kwargs.get('chat_model')
+            model_id = self.kwargs.get('chat_id')
+        chat = get_object_or_404(model, pk=model_id)
+        return chat
+
+    def list(self, request, *args, **kwargs):
+        chat = self.get_chat(**kwargs)
+        messages = chat.message_set
+        files = chat.files
+        images = chat.images
+        videos = chat.videos
+        audios = chat.audios
+        from_date = request.GET.get('from_date')
+        page_size = self.page_size
+        content = [messages, files, images, videos, audios]
+        if from_date:
+            try:
+                from_date = datetime.strptime(from_date, '%Y-%m-%dT%H:%M:%S.%fZ')
+            except ValueError:
+                raise Response(status=status.HTTP_400_BAD_REQUEST,
+                               data='wrong date format use %Y-%m-%dT%H:%M:%S.%fZ')
+            try:
+                page_size = int(request.GET.get('page_size'))
+                if page_size > self.max_page_size:
+                    page_size = self.max_page_size
+                if page_size < self.page_size:
+                    page_size = self.page_size
+            except (KeyError, ValueError, TypeError):
+                pass
+            for ind,object in enumerate(content):
+                content[ind] = object.all().filter(created_at__gte=from_date)[:page_size]
+        else:
+            for ind, object in enumerate(content):
+                content[ind] = object.all()[:page_size]
+        messages, files, images, videos, audios = content
+        messages_serialized = chat.message_set.model.get_serializer()(messages, many=True).data
+        files_serialized = ChatFileSerializer(files, many=True).data
+        images_serialized = ChatImageSerializer(images, many=True).data
+        videos_serialized = ChatVideoSerializer(videos, many=True).data
+        audios_serialized = ChatAudioSerializer(audios, many=True).data
+        data = sorted(
+            chain(files_serialized, images_serialized, videos_serialized, audios_serialized, messages_serialized),
+            key=lambda x: datetime.strptime(x['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ"))[:page_size]
+        return Response(data=data, status=HTTP_200_OK)
