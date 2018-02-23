@@ -2,21 +2,23 @@ import datetime
 from copy import deepcopy
 
 import channels
+from backend.settings import _redis as r
 from asgiref.sync import async_to_sync
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.generics import CreateAPIView, ListAPIView, get_object_or_404
-from chat.consts import CHAT_TEXT_MESSAGE, REVERSE_CHAT_TYPES, CHAT_FILE_MESSAGE, CHAT_IMAGE_MESSAGE, \
-    CHAT_AUDIO_MESSAGE, CHAT_VIDEO_MESSAGE
+from chat.consts import REVERSE_CHAT_TYPES, LAST_MESSAGE
 from chat.consumers import CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT
+from files.consts import FILE_MESSAGE_FIELD, IMAGE_MESSAGE_FIELD, AUDIO_MESSAGE_FIELD, VIDEO_MESSAGE_FIELD
 from files.models import ChatFile, ChatImage, ChatAudio, ChatVideo
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatAudioSerializer, ChatVideoSerializer
-from utils.websocket_utils import WebSocketEvent
+from utils.websocket_utils import WebSocketEvent, ActionType, ChatFileMessageAction, ChatImageMessageAction, \
+    ChatAudioMessageAction, ChatVideoMessageAction
 
 
 class _ChatFileList(CreateAPIView, ListAPIView):
     serializer_class = ChatFileSerializer
     queryset = ChatFile.objects.all()
-    action_type = None
+    Action = ActionType
     field = None
 
     def get_chat(self, **kwargs):
@@ -35,7 +37,7 @@ class _ChatFileList(CreateAPIView, ListAPIView):
             request.data['content_type'] = content_type.id
             request.data['object_id'] = object_id
         result = super(_ChatFileList, self).create(request, *args, **kwargs)
-        time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        time = datetime.datetime.now()
         chat = result.data['chat']
         file = result.data[self.field]
         id = result.data['id']
@@ -44,26 +46,18 @@ class _ChatFileList(CreateAPIView, ListAPIView):
         model = kwargs.get('chat_model')
         model_name = REVERSE_CHAT_TYPES[model]
         model_string_name = f'{model_name}-{object_id}'
-        data = {
-            'action_type': self.action_type,
-            'action': {
-                'id': id,
-                'chat_type': model_name,
-                'chat': chat['id'],
-                'owner': request.user.id,
-                'created_at': time,
-                'text': content,
-                'edited': False,
-                'edited_at': time
-            }
-        }
-        chat_data = deepcopy(data)
-        chat_data['type'] = CONSUMER_CHAT_MESSAGE
-        chat_data = WebSocketEvent(chat_data['action_type'], chat_data['action'], chat_data['type']).to_dict_flat()
-        user_data = deepcopy(data)
-        user_data['type'] = CONSUMER_USER_EVENT
-        user_data = WebSocketEvent(user_data['action_type'], user_data['action'], user_data['type']).to_dict()
+        # noinspection PyArgumentList
+        action = self.Action(id=id, chat_type=model_name, chat=chat['id'], owner=request.user.id,
+                             created_at=time, **{self.field: content})
+
+        chat_data = WebSocketEvent(action, type=CONSUMER_CHAT_MESSAGE).to_dict_flat()
+        user_data = WebSocketEvent(action, type=CONSUMER_USER_EVENT).to_dict()
         async_to_sync(channel_layer.group_send)(model_string_name, chat_data)
+        for user in chat.get_users:
+            async_to_sync(channel_layer.group_send)(f'user-{user.id}', user_data)
+        redis_last_message_name = f'{model_string_name}-{LAST_MESSAGE}'
+        r.hmset(redis_last_message_name,
+                WebSocketEvent(action).to_dict_flat())
         return result
 
     def perform_create(self, serializer):
@@ -83,26 +77,26 @@ class _ChatFileList(CreateAPIView, ListAPIView):
 class ChatFileList(_ChatFileList):
     serializer_class = ChatFileSerializer
     queryset = ChatFile.objects.all()
-    action_type = CHAT_FILE_MESSAGE
-    field = 'file'
+    action = ChatFileMessageAction
+    field = FILE_MESSAGE_FIELD
 
 
 class ChatImageList(_ChatFileList):
     serializer_class = ChatImageSerializer
     queryset = ChatImage.objects.all()
-    action_type = CHAT_IMAGE_MESSAGE
-    field = 'image'
+    action = ChatImageMessageAction
+    field = IMAGE_MESSAGE_FIELD
 
 
 class ChatAudioList(_ChatFileList):
     serializer_class = ChatAudioSerializer
     queryset = ChatAudio.objects.all()
-    action_type = CHAT_AUDIO_MESSAGE
-    field = 'audio'
+    action = ChatAudioMessageAction
+    field = AUDIO_MESSAGE_FIELD
 
 
 class ChatVideoList(_ChatFileList):
     serializer_class = ChatVideoSerializer
     queryset = ChatVideo.objects.all()
-    action_type = CHAT_VIDEO_MESSAGE
-    field = 'video'
+    action = ChatVideoMessageAction
+    field = VIDEO_MESSAGE_FIELD

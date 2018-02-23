@@ -19,6 +19,7 @@ from chat.permissions import AllowMessageToOwner
 from chat.serializers import PrivateChatSerializer, PrivateMessageSerializer, EncryptedPrivateMessageSerializer, \
     GroupMessageSerializer
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatVideoSerializer, ChatAudioSerializer
+from utils.constants import TIME_TZ_FORMAT
 
 MESSAGE_MAX_NUMBER = 1000
 DEFAULT_MESSAGE_NUMBER = 20
@@ -114,7 +115,7 @@ class ChatContent(ListAPIView):
         content = [messages, files, images, videos, audios]
         if from_date:
             try:
-                from_date = datetime.strptime(from_date, '%Y-%m-%dT%H:%M:%S.%fZ')
+                from_date = datetime.strptime(from_date, TIME_TZ_FORMAT)
             except ValueError:
                 raise Response(status=status.HTTP_400_BAD_REQUEST,
                                data='wrong date format use %Y-%m-%dT%H:%M:%S.%fZ')
@@ -132,12 +133,12 @@ class ChatContent(ListAPIView):
             for ind, object in enumerate(content):
                 content[ind] = object.all()[:page_size]
         messages, files, images, videos, audios = content
-        messages_serialized = chat.message_set.model.get_serializer()(messages, many=True).data
+        messages_serialized = chat.message_set.model.get_serializer_class()(messages, many=True).data
         files_serialized = ChatFileSerializer(files, many=True).data
         images_serialized = ChatImageSerializer(images, many=True).data
         videos_serialized = ChatVideoSerializer(videos, many=True).data
         audios_serialized = ChatAudioSerializer(audios, many=True).data
         data = sorted(
             chain(files_serialized, images_serialized, videos_serialized, audios_serialized, messages_serialized),
-            key=lambda x: datetime.strptime(x['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ"))[:page_size]
+            key=lambda x: datetime.strptime(x['created_at'], TIME_TZ_FORMAT))[:page_size]
         return Response(data=data, status=HTTP_200_OK)

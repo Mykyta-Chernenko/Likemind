@@ -1,29 +1,19 @@
-import json
-from collections import OrderedDict
-
 from rest_framework import serializers
-
 from chat.models import PrivateChat, PrivateMessage, EncryptedPrivateMessage, GroupMessage, EncryptedPrivateChat, \
     GroupChat
-from backend.settings import _redis as r
-from chat.consumers import LAST_MESSAGE, PRIVATE_CHAT
 from files.models import ChatImage, ChatAudio, ChatVideo, ChatFile
 from users.serializers import UserSerializer
 
 
 class MessageObjectRelatedField(serializers.RelatedField):
     def to_representation(self, value):
+        models = [PrivateMessage, EncryptedPrivateMessage, GroupMessage, ChatFile, ChatImage, ChatAudio, ChatVideo]
+        for model in models:
+            if isinstance(value, model):
+                # TODO add short
+                return model.get_serializer_class()(value)
 
-        if isinstance(value, PrivateMessage):
-            serializer = PrivateMessageSerializer(value)
-        elif isinstance(value, EncryptedPrivateMessage):
-            serializer = EncryptedPrivateMessageSerializer(value)
-        elif isinstance(value, GroupMessage):
-            serializer = GroupMessageSerializer(value)
-        else:
-            raise Exception('Unexpected type of tagged object')
-
-        return serializer.data
+        raise Exception('Unexpected type of tagged object')
 
 
 class ChatSerializer(serializers.ModelSerializer):
@@ -67,8 +57,6 @@ class PrivateChatSerializer(_PrivateChatSeriliazer):
         model = PrivateChat
         fields = _PrivateChatSeriliazer.Meta.fields
         depth = 0
-
-
 
 
 class EncryptedPrivateChatSerializer(_PrivateChatSeriliazer):

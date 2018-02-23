@@ -14,6 +14,7 @@ from chat.consts import LAST_MESSAGE, CHAT_TEXT_MESSAGE, PRIVATE_CHAT
 from chat.models import PrivateChat, PrivateMessage
 from users.consts import USER
 from users.models import Person, Friend
+from utils.constants import TIME_TZ_FORMAT
 from utils.django_annoying import get_object_or_None
 
 CONSUMER_CHAT_MESSAGE = 'chat.message'
@@ -69,38 +70,26 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
         group_name = f'{PRIVATE_CHAT}-{pc.id}'
         try:
             pm = PrivateMessage.objects.create(chat=pc, text=content, owner=from_user)
-            time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-            data = {
-                'action_type': CHAT_TEXT_MESSAGE,
-                'action': {
-                    'id': pm.id,
-                    'chat_type': PRIVATE_CHAT,
-                    'chat': pc.id,
-                    'owner': from_user.id,
-                    'created_at': time,
-                    'text': content,
-                    'edited': False,
-                    'edited_at': time
-                }
-            }
-            chat_data = deepcopy(data)
-            chat_data['type'] = CONSUMER_CHAT_MESSAGE
+            time = datetime.datetime.now()
+            from utils.websocket_utils import ChatTextMessageAction
+            action = ChatTextMessageAction(id=pm.id, chat_type=PRIVATE_CHAT, chat=pc.id, owner=from_user.id,
+                                           created_at=time, text=content, edited=False, edited_at=time)
             from utils.websocket_utils import WebSocketEvent
-            chat_data = WebSocketEvent(chat_data['action_type'], chat_data['action'], chat_data['type']).to_dict_flat()
-            user_data = deepcopy(data)
-            user_data['type'] = CONSUMER_USER_EVENT
-            user_data = WebSocketEvent(user_data['action_type'], user_data['action'], user_data['type']).to_dict()
+            chat_data = WebSocketEvent(action=action, type=CONSUMER_CHAT_MESSAGE).to_dict_flat()
+            user_data = WebSocketEvent(action=action, type=CONSUMER_USER_EVENT).to_dict()
             async_to_sync(self.channel_layer.group_send)(group_name, chat_data)
             async_to_sync(self.channel_layer.group_send)(f'user-{from_user.id}', user_data)
             async_to_sync(self.channel_layer.group_send)(f'user-{to_user.id}', user_data)
 
             redis_last_message_name = f'{group_name}-{LAST_MESSAGE}'
             r.hmset(redis_last_message_name,
-                    WebSocketEvent(data['action_type'], data['action']).to_dict_flat())
+                    WebSocketEvent(action).to_dict_flat())
+
         except Exception as e:
             print('Exeption on message in private chat' + str(e))
             async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
             raise e
+
 
     def disconnect(self, message):
         from_user, to_user = self.scope['user'], self.scope['to_user']
@@ -108,6 +97,7 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
         print(f'chat {pc.id} disconnected from {from_user} to {to_user}')
         group_name = f'{PRIVATE_CHAT}-{pc.id}'
         async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
+
 
     def _get_private_chat(self, from_user, to_user):
         created = False
@@ -117,6 +107,7 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
             one, two = (from_user, to_user) if from_user.pk < to_user.pk else (to_user, from_user)
             pc, created = PrivateChat.objects.get_or_create(first_user=one, second_user=two)
         return pc, created
+
 
     def chat_message(self, event):
         print('chat message')
