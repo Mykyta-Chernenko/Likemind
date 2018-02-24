@@ -3,7 +3,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
 
-
 from files.models import ChatFile, ChatVideo, ChatImage, ChatAudio
 from users.models import Person
 from backend.settings import _redis as r
@@ -29,6 +28,11 @@ class AbstractMessage(models.Model):
     @classmethod
     def string_type(cls):
         return _string_type(cls)
+
+    @classmethod
+    def get_action_class(cls):
+        from utils.websocket_utils import ChatTextMessageAction
+        return ChatTextMessageAction
 
     @classmethod
     def get_serializer_class(cls):
@@ -141,15 +145,15 @@ class AbstractChat(models.Model):
                 self.videos: VIDEO_MESSAGE_FIELD, self.audios: AUDIO_MESSAGE_FIELD,
                 self.images: IMAGE_MESSAGE_FIELD
             }
-            for query_object, field in message_queryobject_field:
+            for query_object, field in message_queryobject_field.items():
                 if query_object.exists():
                     obj = query_object.latest('created_at')
-                    model_name = REVERSE_CHAT_TYPES[obj.chat]
-                    extra_fields = {field: getattr(obj, 'field')}
+                    model_name = REVERSE_CHAT_TYPES[obj.chat._meta.model]
+                    extra_fields = {field: getattr(obj, field)}
                     if field == TEXT_MESSAGE_FIELD:
                         extra_fields['edited'] = getattr(obj, 'edited')
                         extra_fields['edited_at'] = getattr(obj, 'edited_at')
-                    action = obj.get_action_class(
+                    action = obj.get_action_class()(
                         id=obj.id, chat_type=model_name, chat=obj.chat.id,
                         owner=obj.owner, created_at=obj.created_at,
                         **extra_fields)
@@ -161,11 +165,6 @@ class AbstractChat(models.Model):
 
     def get_users(self):
         raise NotImplementedError
-
-    @classmethod
-    def get_action_class(cls):
-        from utils.websocket_utils import ChatTextMessageAction
-        return ChatTextMessageAction
 
     @classmethod
     def get_serializer_class(cls):

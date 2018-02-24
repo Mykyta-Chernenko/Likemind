@@ -19,8 +19,9 @@ class ActionType:
         self.flat_dict = {}
 
     def to_dict(self):
-        _dict = vars(self)
+        _dict = deepcopy(vars(self))
         _dict['action_type'] = self.action_type()
+        return _dict
 
     def to_flat_dict(self):
         if self.flat_dict:
@@ -45,7 +46,6 @@ class ActionType:
         raise NotImplementedError
 
 
-@dataclass
 class ChatContentMessageAction(ActionType):
     id: int
     chat_type: str
@@ -53,58 +53,84 @@ class ChatContentMessageAction(ActionType):
     owner: int
     created_at: datetime
 
-    def to_dict(self):
-        _dict = super(ChatContentMessageAction, self).to_dict()
-        _dict['created_at'] = datetime.strftime(_dict['created_at'], TIME_TZ_FORMAT)
-        return _dict
+    def __init__(self, id: int, chat_type: int, chat: int, owner: int, created_at: datetime):
+        self.id = id
+        self.chat_type = chat_type
+        self.chat = chat
+        self.owner = owner
+        self.created_at = created_at
+        super(ChatContentMessageAction, self).__init__()
+
+        def to_dict(self):
+            _dict = super(ChatContentMessageAction, self).to_dict()
+            _dict['created_at'] = datetime.strftime(_dict['created_at'], TIME_TZ_FORMAT)
+            return _dict
 
 
-@dataclass
 class ChatTextMessageAction(ChatContentMessageAction):
     text: str
     edited: bool
     edited_at: datetime
 
-    def to_dict(self):
-        _dict = super(ChatTextMessageAction, self).to_dict()
-        _dict['edited_at'] = datetime.strftime(_dict['edited_at'], TIME_TZ_FORMAT)
-        return _dict
+    def __init__(self, id: int, chat_type: int, chat: int, owner: int, created_at: datetime, text: str, edited: bool,
+                 edited_at: datetime):
+        self.text = text
+        self.edited = edited
+        self.edited_at = edited_at
+        super(ChatTextMessageAction, self).__init__(id, chat_type, chat, owner, created_at)
+
+        def to_dict(self):
+            _dict = super(ChatTextMessageAction, self).to_dict()
+            _dict['edited_at'] = datetime.strftime(_dict['edited_at'], TIME_TZ_FORMAT)
+            return _dict
 
     @classmethod
     def action_type(cls):
         return CHAT_TEXT_MESSAGE
 
 
-@dataclass
 class ChatImageMessageAction(ChatContentMessageAction):
     image: str
+
+    def __init__(self, id: int, chat_type: int, chat: int, owner: int, created_at: datetime, image: str):
+        self.image = image
+        super(ChatImageMessageAction, self).__init__(id, chat_type, chat, owner, created_at)
 
     @classmethod
     def action_type(cls):
         return CHAT_IMAGE_MESSAGE
 
 
-@dataclass
 class ChatVideoMessageAction(ChatContentMessageAction):
     video: str
+
+    def __init__(self, id: int, chat_type: int, chat: int, owner: int, created_at: datetime, video: str):
+        self.video = video
+        super(ChatVideoMessageAction, self).__init__(id, chat_type, chat, owner, created_at)
 
     @classmethod
     def action_type(cls):
         return CHAT_VIDEO_MESSAGE
 
 
-@dataclass
 class ChatAudioMessageAction(ChatContentMessageAction):
     audio: str
+
+    def __init__(self, id: int, chat_type: int, chat: int, owner: int, created_at: datetime, audio: str):
+        self.audio = audio
+        super(ChatAudioMessageAction, self).__init__(id, chat_type, chat, owner, created_at)
 
     @classmethod
     def action_type(cls):
         return CHAT_AUDIO_MESSAGE
 
 
-@dataclass
 class ChatFileMessageAction(ChatContentMessageAction):
     file: str
+
+    def __init__(self, id: int, chat_type: int, chat: int, owner: int, created_at: datetime, file: str):
+        self.file = file
+        super(ChatFileMessageAction, self).__init__(id, chat_type, chat, owner, created_at)
 
     @classmethod
     def action_type(cls):
@@ -112,7 +138,6 @@ class ChatFileMessageAction(ChatContentMessageAction):
 
 
 class WebSocketEvent:
-
     def __init__(self, action: ActionType, type=None):
         if type:
             if not type in event_types:
@@ -121,7 +146,7 @@ class WebSocketEvent:
         self.action = action
 
     def to_dict(self):
-        _dict = vars(self)
+        _dict = deepcopy(vars(self))
         _dict.pop('action')
         _dict['action'] = self.action.to_dict()
         _dict['action_type'] = _dict['action']['action_type']
@@ -129,7 +154,7 @@ class WebSocketEvent:
         return _dict
 
     def to_dict_flat(self):
-        _dict = vars(self)
+        _dict = deepcopy(vars(self))
         _dict.pop('action')
         _dict.update(self.action.to_flat_dict())
         return _dict

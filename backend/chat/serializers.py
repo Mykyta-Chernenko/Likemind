@@ -11,7 +11,7 @@ class MessageObjectRelatedField(serializers.RelatedField):
         for model in models:
             if isinstance(value, model):
                 # TODO add short
-                return model.get_serializer_class()(value)
+                return model.get_serializer_class()(value).data
 
         raise Exception('Unexpected type of tagged object')
 

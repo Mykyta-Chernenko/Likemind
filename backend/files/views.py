@@ -18,7 +18,7 @@ from utils.websocket_utils import WebSocketEvent, ActionType, ChatFileMessageAct
 class _ChatFileList(CreateAPIView, ListAPIView):
     serializer_class = ChatFileSerializer
     queryset = ChatFile.objects.all()
-    Action = ActionType
+    ActionType = ActionType
     field = None
 
     def get_chat(self, **kwargs):
@@ -47,8 +47,8 @@ class _ChatFileList(CreateAPIView, ListAPIView):
         model_name = REVERSE_CHAT_TYPES[model]
         model_string_name = f'{model_name}-{object_id}'
         # noinspection PyArgumentList
-        action = self.Action(id=id, chat_type=model_name, chat=chat['id'], owner=request.user.id,
-                             created_at=time, **{self.field: content})
+        action = self.ActionType(id=id, chat_type=model_name, chat=chat['id'], owner=request.user.id,
+                                 created_at=time, **{self.field: content})
 
         chat_data = WebSocketEvent(action, type=CONSUMER_CHAT_MESSAGE).to_dict_flat()
         user_data = WebSocketEvent(action, type=CONSUMER_USER_EVENT).to_dict()
@@ -77,26 +77,26 @@ class _ChatFileList(CreateAPIView, ListAPIView):
 class ChatFileList(_ChatFileList):
     serializer_class = ChatFileSerializer
     queryset = ChatFile.objects.all()
-    action = ChatFileMessageAction
+    ActionType = ChatFileMessageAction
     field = FILE_MESSAGE_FIELD
 
 
 class ChatImageList(_ChatFileList):
     serializer_class = ChatImageSerializer
     queryset = ChatImage.objects.all()
-    action = ChatImageMessageAction
+    ActionType = ChatImageMessageAction
     field = IMAGE_MESSAGE_FIELD
 
 
 class ChatAudioList(_ChatFileList):
     serializer_class = ChatAudioSerializer
     queryset = ChatAudio.objects.all()
-    action = ChatAudioMessageAction
+    ActionType = ChatAudioMessageAction
     field = AUDIO_MESSAGE_FIELD
 
 
 class ChatVideoList(_ChatFileList):
     serializer_class = ChatVideoSerializer
     queryset = ChatVideo.objects.all()
-    action = ChatVideoMessageAction
+    ActionType = ChatVideoMessageAction
     field = VIDEO_MESSAGE_FIELD
