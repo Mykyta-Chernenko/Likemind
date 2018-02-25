@@ -1,56 +1,33 @@
 from copy import deepcopy
 from datetime import datetime
 
-from chat.consts import CHAT_TEXT_MESSAGE, CHAT_TYPES, CHAT_AUDIO_MESSAGE, CHAT_FILE_MESSAGE, CHAT_IMAGE_MESSAGE, \
-    CHAT_VIDEO_MESSAGE
+from attr import dataclass
+
+from chat.consts import CHAT_TEXT_MESSAGE
 from chat.consumers import CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT
+from files.consts import CHAT_IMAGE_MESSAGE, CHAT_VIDEO_MESSAGE, CHAT_FILE_MESSAGE, CHAT_AUDIO_MESSAGE
+from utils.constants import TIME_TZ_FORMAT
 
 action_types = [CHAT_TEXT_MESSAGE, CHAT_IMAGE_MESSAGE, CHAT_VIDEO_MESSAGE, CHAT_FILE_MESSAGE, CHAT_AUDIO_MESSAGE]
 event_types = [CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT]
 
 
-class WebSocketEvent(dict):
+class ActionType:
+    flat_dict = None
 
-    def __init__(self, action_type, action, type=None):
-        super(WebSocketEvent, self).__init__()
+    def __init__(self):
         self.flat_dict = {}
-        if not action_type in action_types:
-            raise ValueError('No such action type')
-        if not action['chat_type'] in CHAT_TYPES.keys():
-            raise ValueError('No such chat type')
-        if type and not type in event_types:
-            raise ValueError('No such consumer event type')
-        self.action_type = action_type
-        if type:
-            self.type = type
-        _action = {}
-        if action_type == CHAT_TEXT_MESSAGE:
-            _action['chat_type'] = action['chat_type']
-            _action['chat'] = int(action['chat'])
-            _action['id'] = int(action['id'])
-            _action['owner'] = int(action['owner'])
-            _action['created_at'] = datetime.strftime(
-                action['created_at'] \
-                    if isinstance(action['created_at'], datetime) \
-                    else datetime.strptime(action['created_at'], '%Y-%m-%dT%H:%M:%S'),
-                '%Y-%m-%dT%H:%M:%S')
-            _action['text'] = str(action['text'])
-            _action['edited'] = bool(action['edited'])
-            _action['edited_at'] = datetime.strftime(
-                action['edited_at'] \
-                    if isinstance(action['edited_at'], datetime) \
-                    else datetime.strptime(action['edited_at'], '%Y-%m-%dT%H:%M:%S'),
-                '%Y-%m-%dT%H:%M:%S')
-        self.action = _action
 
     def to_dict(self):
-        return vars(self)
+        _dict = deepcopy(vars(self))
+        _dict['action_type'] = self.action_type()
+        return _dict
 
-    def to_dict_flat(self):
+    def to_flat_dict(self):
         if self.flat_dict:
             return self.flat_dict
-        dict = vars(self)
-        for key, value in dict.items():
+        _dict = self.to_dict()
+        for key, value in _dict.items():
             self._rec_to_dict_flat(key, value)
         return self.flat_dict
 
@@ -63,3 +40,121 @@ class WebSocketEvent(dict):
         else:
             for key, value in value.items():
                 self._rec_to_dict_flat(key, value)
+
+    @classmethod
+    def action_type(cls):
+        raise NotImplementedError
+
+
+class ChatContentMessageAction(ActionType):
+    id: int
+    chat_type: str
+    chat: int
+    owner: int
+    created_at: datetime
+
+    def __init__(self, id: int, chat_type: int, chat: int, owner: int, created_at: datetime):
+        self.id = id
+        self.chat_type = chat_type
+        self.chat = chat
+        self.owner = owner
+        self.created_at = created_at
+        super(ChatContentMessageAction, self).__init__()
+
+        def to_dict(self):
+            _dict = super(ChatContentMessageAction, self).to_dict()
+            _dict['created_at'] = datetime.strftime(_dict['created_at'], TIME_TZ_FORMAT)
+            return _dict
+
+
+class ChatTextMessageAction(ChatContentMessageAction):
+    text: str
+    edited: bool
+    edited_at: datetime
+
+    def __init__(self, id: int, chat_type: int, chat: int, owner: int, created_at: datetime, text: str, edited: bool,
+                 edited_at: datetime):
+        self.text = text
+        self.edited = edited
+        self.edited_at = edited_at
+        super(ChatTextMessageAction, self).__init__(id, chat_type, chat, owner, created_at)
+
+        def to_dict(self):
+            _dict = super(ChatTextMessageAction, self).to_dict()
+            _dict['edited_at'] = datetime.strftime(_dict['edited_at'], TIME_TZ_FORMAT)
+            return _dict
+
+    @classmethod
+    def action_type(cls):
+        return CHAT_TEXT_MESSAGE
+
+
+class ChatImageMessageAction(ChatContentMessageAction):
+    image: str
+
+    def __init__(self, id: int, chat_type: int, chat: int, owner: int, created_at: datetime, image: str):
+        self.image = image
+        super(ChatImageMessageAction, self).__init__(id, chat_type, chat, owner, created_at)
+
+    @classmethod
+    def action_type(cls):
+        return CHAT_IMAGE_MESSAGE
+
+
+class ChatVideoMessageAction(ChatContentMessageAction):
+    video: str
+
+    def __init__(self, id: int, chat_type: int, chat: int, owner: int, created_at: datetime, video: str):
+        self.video = video
+        super(ChatVideoMessageAction, self).__init__(id, chat_type, chat, owner, created_at)
+
+    @classmethod
+    def action_type(cls):
+        return CHAT_VIDEO_MESSAGE
+
+
+class ChatAudioMessageAction(ChatContentMessageAction):
+    audio: str
+
+    def __init__(self, id: int, chat_type: int, chat: int, owner: int, created_at: datetime, audio: str):
+        self.audio = audio
+        super(ChatAudioMessageAction, self).__init__(id, chat_type, chat, owner, created_at)
+
+    @classmethod
+    def action_type(cls):
+        return CHAT_AUDIO_MESSAGE
+
+
+class ChatFileMessageAction(ChatContentMessageAction):
+    file: str
+
+    def __init__(self, id: int, chat_type: int, chat: int, owner: int, created_at: datetime, file: str):
+        self.file = file
+        super(ChatFileMessageAction, self).__init__(id, chat_type, chat, owner, created_at)
+
+    @classmethod
+    def action_type(cls):
+        return CHAT_FILE_MESSAGE
+
+
+class WebSocketEvent:
+    def __init__(self, action: ActionType, type=None):
+        if type:
+            if not type in event_types:
+                raise ValueError('No such consumer event type')
+            self.type = type
+        self.action = action
+
+    def to_dict(self):
+        _dict = deepcopy(vars(self))
+        _dict.pop('action')
+        _dict['action'] = self.action.to_dict()
+        _dict['action_type'] = _dict['action']['action_type']
+        _dict['action'].pop('action_type')
+        return _dict
+
+    def to_dict_flat(self):
+        _dict = deepcopy(vars(self))
+        _dict.pop('action')
+        _dict.update(self.action.to_flat_dict())
+        return _dict

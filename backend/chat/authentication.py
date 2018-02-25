@@ -16,17 +16,13 @@ jwt_authentication = JSONWebTokenAuthentication()
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 
 
-def get_user(scope):
-    print('GET Here')
-    if "_cached_user" not in scope:
-        fake_request = type("FakeRequest", (object,), {"session": scope["session"]})
-        scope["_cached_user"] = auth.get_user(fake_request)
-    return scope["_cached_user"]
 
 
 class JWTAuthMiddleware:
     """
-    Custom middleware (insecure) that takes user IDs from the query string.
+    JWT authentication by token in query strings,
+    accepts any additional params as query string
+    and sets it in the scope for use in a websocket consumer
     """
 
     def __init__(self, inner):
@@ -50,10 +46,11 @@ class JWTAuthMiddleware:
             msg = 'Error decoding signature.'
             raise AuthenticationFailed(msg)
         except jwt.InvalidTokenError:
-            raise AuthenticationFailed()
+            msg = 'Invalid token'
+            raise AuthenticationFailed(msg)
         user = jwt_authentication.authenticate_credentials(payload)
         if not user:
-            raise AuthenticationFailed()
+            raise AuthenticationFailed("Can't login with the given token")
         scope["user"] = user
         for key, value in qs.items():
             scope[key] = value

@@ -12,7 +12,10 @@ RUN pip install redis==2.10.6
 RUN pip install djangorestframework-jwt==1.11
 RUN pip install django-cors-headers==2.1.0
 RUN pip install djangorestframework-queryfields==1.0.0
+<<<<<<< HEAD
 RUN pip install django-audiofield==0.10.0
+=======
+>>>>>>> ac3f7fc13f06db5e27633552a8aa8d86ec171c5b
 RUN pip install Pillow==5.0.0
 RUN pip install django-phonenumber-field==2.0.0
 RUN pip install channels==2.0.2
