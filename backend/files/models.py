@@ -8,7 +8,6 @@ from backend import settings
 from users.models import Person
 from utils.models_methods import _string_type
 
-
 chat_limit = models.Q(app_label='chat', model='PrivateChat') | \
              models.Q(app_label='chat', model='EncryptedPrivateChat') | \
              models.Q(app_label='chat', model='GroupChat')
@@ -47,6 +46,11 @@ class ChatFile(_ChatFile):
         return ChatFileMessageAction
 
     @classmethod
+    def get_field(cls):
+        from files.consts import FILE_MESSAGE_FIELD
+        return FILE_MESSAGE_FIELD
+
+    @classmethod
     def get_serializer_class(cls):
         from files.serializers import ChatFileSerializer
         return ChatFileSerializer
@@ -59,6 +63,11 @@ class ChatImage(_ChatFile):
     def get_action_class(cls):
         from utils.websocket_utils import ChatImageMessageAction
         return ChatImageMessageAction
+
+    @classmethod
+    def get_field(cls):
+        from files.consts import IMAGE_MESSAGE_FIELD
+        return IMAGE_MESSAGE_FIELD
 
     @classmethod
     def get_serializer_class(cls):
@@ -88,6 +97,11 @@ class ChatAudio(_ChatFile):
         return ChatAudioMessageAction
 
     @classmethod
+    def get_field(cls):
+        from files.consts import AUDIO_MESSAGE_FIELD
+        return AUDIO_MESSAGE_FIELD
+
+    @classmethod
     def get_serializer_class(cls):
         from files.serializers import ChatAudioSerializer
         return ChatAudioSerializer
@@ -110,6 +124,11 @@ class ChatVideo(_ChatFile):
     def get_action_class(cls):
         from utils.websocket_utils import ChatVideoMessageAction
         return ChatVideoMessageAction
+
+    @classmethod
+    def get_field(cls):
+        from files.consts import VIDEO_MESSAGE_FIELD
+        return VIDEO_MESSAGE_FIELD
 
     @classmethod
     def get_serializer_class(cls):

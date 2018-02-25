@@ -13,9 +13,14 @@ from files.models import ChatFile, ChatImage, ChatAudio, ChatVideo
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatAudioSerializer, ChatVideoSerializer
 from utils.websocket_utils import WebSocketEvent, ActionType, ChatFileMessageAction, ChatImageMessageAction, \
     ChatAudioMessageAction, ChatVideoMessageAction
-
+# TODO check if user belongs to chat
 
 class _ChatFileList(CreateAPIView, ListAPIView):
+    '''
+    requires chat-type from url (private-chat, group-chat, encrypted-private-chat) and its id
+
+    create
+    '''
     serializer_class = ChatFileSerializer
     queryset = ChatFile.objects.all()
     ActionType = ActionType
@@ -53,7 +58,8 @@ class _ChatFileList(CreateAPIView, ListAPIView):
         chat_data = WebSocketEvent(action, type=CONSUMER_CHAT_MESSAGE).to_dict_flat()
         user_data = WebSocketEvent(action, type=CONSUMER_USER_EVENT).to_dict()
         async_to_sync(channel_layer.group_send)(model_string_name, chat_data)
-        for user in chat.get_users:
+        chat = content_type.get_object_for_this_type(id=id)
+        for user in chat.get_users():
             async_to_sync(channel_layer.group_send)(f'user-{user.id}', user_data)
         redis_last_message_name = f'{model_string_name}-{LAST_MESSAGE}'
         r.hmset(redis_last_message_name,
@@ -96,6 +102,14 @@ class ChatAudioList(_ChatFileList):
 
 
 class ChatVideoList(_ChatFileList):
+    '''
+    post:
+    Creates video in the related chat
+
+    get:
+    get list of videos in the related chat
+    '''
+    http_method_names = ['get', 'post']
     serializer_class = ChatVideoSerializer
     queryset = ChatVideo.objects.all()
     ActionType = ChatVideoMessageAction

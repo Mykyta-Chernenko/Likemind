@@ -58,13 +58,8 @@ class ChatContentMessageAction(ActionType):
         self.chat_type = chat_type
         self.chat = chat
         self.owner = owner
-        self.created_at = created_at
+        self.created_at = datetime.strftime(created_at, TIME_TZ_FORMAT)
         super(ChatContentMessageAction, self).__init__()
-
-        def to_dict(self):
-            _dict = super(ChatContentMessageAction, self).to_dict()
-            _dict['created_at'] = datetime.strftime(_dict['created_at'], TIME_TZ_FORMAT)
-            return _dict
 
 
 class ChatTextMessageAction(ChatContentMessageAction):
@@ -76,13 +71,8 @@ class ChatTextMessageAction(ChatContentMessageAction):
                  edited_at: datetime):
         self.text = text
         self.edited = edited
-        self.edited_at = edited_at
+        self.edited_at = datetime.strftime(edited_at, TIME_TZ_FORMAT)
         super(ChatTextMessageAction, self).__init__(id, chat_type, chat, owner, created_at)
-
-        def to_dict(self):
-            _dict = super(ChatTextMessageAction, self).to_dict()
-            _dict['edited_at'] = datetime.strftime(_dict['edited_at'], TIME_TZ_FORMAT)
-            return _dict
 
     @classmethod
     def action_type(cls):

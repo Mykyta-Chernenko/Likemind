@@ -40,15 +40,21 @@ class Message():
 
 
 class MessageList(CreateAPIView, ListAPIView, Message):
+    '''
+    gets related chat by chat_id in url
+    list: returns list of messages of related chat
+    create: creates message in related chat
+    '''
     pagination_class = MessageListPagination
-
+    def get_queryset(self):
+        chat_id = self.kwargs.get('chat_id')
+        return self.queryset.filter(chat__pk=chat_id)
     def perform_create(self, serializer):
         chat = get_object_or_404(self.serializer_class.Meta.model, pk=self.kwargs['chat_id'])
         serializer.save(chat=chat, owner=self.request.user)
 
 
 class _PrivateMessageList(MessageList):
-
     def get_queryset(self):
         queryset = super(_PrivateMessageList, self).get_queryset().filter(
             Q(chat__first_user=self.request.user) | Q(chat__second_user=self.request.user))

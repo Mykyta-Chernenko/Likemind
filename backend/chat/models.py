@@ -1,4 +1,6 @@
 import datetime
+from itertools import chain
+
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
@@ -9,6 +11,8 @@ from backend.settings import _redis as r
 from utils.models_methods import _string_type
 
 
+# TODO check if user belongs to chat
+
 class AbstractMessage(models.Model):
     text = models.TextField(max_length=1000)
     owner = models.ForeignKey(Person, on_delete=models.CASCADE)
@@ -18,7 +22,7 @@ class AbstractMessage(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
     def save(self, *args, **kwargs):
         if self.edited_at and self.created_at and self.edited_at != self.created_at:
@@ -33,6 +37,11 @@ class AbstractMessage(models.Model):
     def get_action_class(cls):
         from utils.websocket_utils import ChatTextMessageAction
         return ChatTextMessageAction
+
+    @classmethod
+    def get_field(cls):
+        from chat.consts import TEXT_MESSAGE_FIELD
+        return TEXT_MESSAGE_FIELD
 
     @classmethod
     def get_serializer_class(cls):
@@ -101,11 +110,11 @@ class AbstractChat(models.Model):
     def last_message(self):
         from chat.consts import LAST_MESSAGE, REVERSE_CHAT_TYPES, CHAT_TYPE_TO_MESSAGE_TYPE, CHAT_TYPES
         model_string_name = REVERSE_CHAT_TYPES[self._meta.model]
-        redis_chat_last_message = f'{model_string_name}_{self.id}_{LAST_MESSAGE}'
+        redis_chat_last_message = f'{model_string_name}-{self.id}-{LAST_MESSAGE}'
         exist = r.exists(redis_chat_last_message)
         from chat.consts import TEXT_MESSAGE_FIELD
         from files.consts import IMAGE_MESSAGE_FIELD, AUDIO_MESSAGE_FIELD, VIDEO_MESSAGE_FIELD, FILE_MESSAGE_FIELD, \
-            file_model_from_field
+            FILE_MODEL_FROM_FIELD
         if exist:
             last_message = {}
             message_type_variants = [TEXT_MESSAGE_FIELD, IMAGE_MESSAGE_FIELD,
@@ -124,10 +133,11 @@ class AbstractChat(models.Model):
                 for key in args:
                     dct[key] = r.hget(redis_chat_last_message, key).decode('utf-8')
 
-            populate_dict_from_redis(last_message, last_message_type, 'created_at', 'owner')
+            populate_dict_from_redis(last_message, last_message_type, 'created_at', 'owner', 'id')
 
             if last_message_type is TEXT_MESSAGE_FIELD:
                 populate_dict_from_redis(last_message, 'edited', 'edited_at')
+
             try:
                 last_message['owner'] = Person.objects.get(pk=last_message['owner'])
             except Person.DoesNotExist:
@@ -136,32 +146,37 @@ class AbstractChat(models.Model):
             if last_message_type is TEXT_MESSAGE_FIELD:
                 result = CHAT_TYPE_TO_MESSAGE_TYPE[self._meta.model](**last_message)
             else:
-                result = file_model_from_field[last_message_type](**last_message)
+                result = FILE_MODEL_FROM_FIELD[last_message_type](**last_message)
 
             return result
         else:
-            message_queryobject_field = {
-                self.message_set: TEXT_MESSAGE_FIELD, self.files: FILE_MESSAGE_FIELD,
-                self.videos: VIDEO_MESSAGE_FIELD, self.audios: AUDIO_MESSAGE_FIELD,
-                self.images: IMAGE_MESSAGE_FIELD
-            }
-            for query_object, field in message_queryobject_field.items():
+            message_queryobject = [
+                self.message_set, self.files,
+                self.videos, self.audios,
+                self.images
+            ]
+            last_objects = ()
+            for query_object in message_queryobject:
                 if query_object.exists():
-                    obj = query_object.latest('created_at')
-                    model_name = REVERSE_CHAT_TYPES[obj.chat._meta.model]
-                    extra_fields = {field: getattr(obj, field)}
-                    if field == TEXT_MESSAGE_FIELD:
-                        extra_fields['edited'] = getattr(obj, 'edited')
-                        extra_fields['edited_at'] = getattr(obj, 'edited_at')
-                    action = obj.get_action_class()(
-                        id=obj.id, chat_type=model_name, chat=obj.chat.id,
-                        owner=obj.owner, created_at=obj.created_at,
-                        **extra_fields)
-                    model_string_name = f'{model_string_name}-{obj.chat.id}'
-                    redis_last_message_name = f'{model_string_name}-{LAST_MESSAGE}'
-                    from utils.websocket_utils import WebSocketEvent
-                    r.hmset(redis_last_message_name, WebSocketEvent(action).to_dict_flat())
-                    return obj
+                    last_objects += (query_object.latest('created_at'),)
+            if not last_objects:
+                return None
+            obj = sorted(last_objects, key=lambda x: x.created_at, reverse=True)[0]
+            model_name = REVERSE_CHAT_TYPES[obj.chat._meta.model]
+            field = obj.get_field()
+            extra_fields = {field: getattr(obj, field)}
+            if obj.get_field() == TEXT_MESSAGE_FIELD:
+                extra_fields['edited'] = obj.edited
+                extra_fields['edited_at'] = obj.edited_at
+            action = obj.get_action_class()(
+                id=obj.id, chat_type=model_name, chat=obj.chat.id,
+                owner=obj.owner.id, created_at=obj.created_at,
+                **extra_fields)
+            model_string_name = f'{model_string_name}-{obj.chat.id}'
+            redis_last_message_name = f'{model_string_name}-{LAST_MESSAGE}'
+            from utils.websocket_utils import WebSocketEvent
+            r.hmset(redis_last_message_name, WebSocketEvent(action).to_dict_flat())
+            return obj
 
     def get_users(self):
         raise NotImplementedError
