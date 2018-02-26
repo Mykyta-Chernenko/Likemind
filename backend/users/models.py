@@ -29,8 +29,8 @@ class Person(AbstractUser):
 
 
 class Friend(models.Model):
-    first = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='first_set')
-    second = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='second_set')
+    first = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='first_set', verbose_name='friendship from')
+    second = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='second_set', verbose_name='friendhship to')
 
     class Meta:
         unique_together = ['first', 'second']

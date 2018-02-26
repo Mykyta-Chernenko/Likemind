@@ -35,10 +35,8 @@ class NestedUserSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
-    friends = NestedUserSerializer(many=True, required=False, read_only=True)
-
     class Meta(NestedUserSerializer.Meta):
-        fields = NestedUserSerializer.Meta.fields + ('friends',)
+        fields = NestedUserSerializer.Meta.fields
         depth = 2
 
     def __init__(self, *args, short=False, **kwargs):
@@ -64,9 +62,12 @@ class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
 
 
 class FriendSerializer(serializers.ModelSerializer):
+    first = serializers.PrimaryKeyRelatedField(read_only=True)
+    second = serializers.PrimaryKeyRelatedField(queryset=Person.objects.all())
+
     class Meta:
         model = Friend
-        fields = ['first', 'second']
+        fields = ['id', 'first', 'second']
         depth = 1
 
 
