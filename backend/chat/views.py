@@ -12,12 +12,15 @@ from rest_framework.generics import CreateAPIView, ListAPIView, GenericAPIView, 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
+from rest_framework.utils.urls import replace_query_param
 
+from chat.consts import MESSAGE_TYPE_TO_CHAT_TYPE
 from chat.models import PrivateChat, PrivateMessage, EncryptedPrivateMessage, GroupMessage
 from chat.paginations import MessageListPagination
-from chat.permissions import AllowMessageToOwner
+from chat.permissions import AllowMessageToOwner, MessageBelongToChat
 from chat.serializers import PrivateChatSerializer, PrivateMessageSerializer, EncryptedPrivateMessageSerializer, \
     GroupMessageSerializer
+from files.permissions import FileBelongToChat
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatVideoSerializer, ChatAudioSerializer
 from utils.constants import TIME_TZ_FORMAT
 
@@ -49,12 +52,14 @@ class PrivateChatList(CreateAPIView, ListAPIView):
 
 
 class Message():
+    permission_classes = [IsAuthenticated, MessageBelongToChat]
+
     def get_queryset(self):
-        queryset = self.queryset.filter(chat__pk=self.kwargs['chat_id'])
-        return queryset
+        chat_id = self.kwargs.get('chat_id')
+        return self.queryset.filter(chat__pk=chat_id)
 
 
-class MessageList(CreateAPIView, ListAPIView, Message):
+class MessageList(Message, CreateAPIView, ListAPIView):
     '''
     gets related chat by chat_id in url
     list: returns list of messages of related chat
@@ -62,18 +67,14 @@ class MessageList(CreateAPIView, ListAPIView, Message):
     '''
     pagination_class = MessageListPagination
 
-    def get_queryset(self):
-        chat_id = self.kwargs.get('chat_id')
-        return self.queryset.filter(chat__pk=chat_id)
-
     def perform_create(self, serializer):
-        chat = get_object_or_404(self.serializer_class.Meta.model, pk=self.kwargs['chat_id'])
+        chat = get_object_or_404(MESSAGE_TYPE_TO_CHAT_TYPE[self.serializer_class.Meta.model], pk=self.kwargs['chat_id'])
         serializer.save(chat=chat, owner=self.request.user)
 
 
 class _PrivateMessageList(MessageList):
     def get_queryset(self):
-        queryset = super(_PrivateMessageList, self).get_queryset().filter(
+        queryset = super(MessageList, self).get_queryset().filter(
             Q(chat__first_user=self.request.user) | Q(chat__second_user=self.request.user))
         return queryset
 
@@ -94,7 +95,7 @@ class GroupMessageList(MessageList):
 
 
 class MessageDetail(UpdateAPIView, DestroyAPIView, RetrieveAPIView, Message):
-    permission_classes = [IsAuthenticated, AllowMessageToOwner]
+    pass
 
 
 class PrivateMessageDetail(MessageDetail):
@@ -115,6 +116,7 @@ class GroupMessageDetail(MessageDetail):
 class ChatContent(ListAPIView):
     page_size = 20
     max_page_size = 200
+    page_query_param = 'date_from'
 
     # TODO add next and previous page to pagination
     def get_chat(self, **kwargs):
@@ -134,7 +136,7 @@ class ChatContent(ListAPIView):
         images = chat.images
         videos = chat.videos
         audios = chat.audios
-        from_date = request.GET.get('from_date')
+        from_date = request.GET.get(self.page_query_param)
         page_size = self.page_size
         content = [messages, files, images, videos, audios]
         if from_date:
@@ -162,7 +164,21 @@ class ChatContent(ListAPIView):
         images_serialized = ChatImageSerializer(images, many=True).data
         videos_serialized = ChatVideoSerializer(videos, many=True).data
         audios_serialized = ChatAudioSerializer(audios, many=True).data
-        data = sorted(
+        result = sorted(
             chain(files_serialized, images_serialized, videos_serialized, audios_serialized, messages_serialized),
             key=lambda x: datetime.strptime(x['created_at'], TIME_TZ_FORMAT))[:page_size]
+
+        count = len(result)
+        data_from = date_from = result[-1].created_at
+        if count < 20:
+            next = None
+        else:
+            url = self.request.build_absolute_uri()
+            date_from = result[-1].created_at
+            next = replace_query_param(url, self.page_query_param, data_from)
+        data = {
+            'next': next,
+            'count': count,
+            'results': result
+        }
         return Response(data=data, status=HTTP_200_OK)

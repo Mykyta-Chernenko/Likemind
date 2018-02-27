@@ -1,23 +1,28 @@
+from drf_queryfields import QueryFieldsMixin
 from rest_framework import serializers
 from chat.models import PrivateChat, PrivateMessage, EncryptedPrivateMessage, GroupMessage, EncryptedPrivateChat, \
     GroupChat
 from files.models import ChatImage, ChatAudio, ChatVideo, ChatFile
 from users.models import Person
 from users.serializers import UserSerializer
+from utils.drf_mixins import SerializerFieldsMixin
 
 
 class MessageObjectRelatedField(serializers.RelatedField):
     def to_representation(self, value):
-        models = [PrivateMessage, EncryptedPrivateMessage, GroupMessage, ChatFile, ChatImage, ChatAudio, ChatVideo]
-        for model in models:
+        text_models = [PrivateMessage, EncryptedPrivateMessage, GroupMessage]
+        file_models = [ChatFile, ChatImage, ChatAudio, ChatVideo]
+        for model in text_models:
             if isinstance(value, model):
-                # TODO add short
-                return model.get_serializer_class()(value).data
+                return model.get_serializer_class()(value, exclude_fields='chat').data
+        for model in file_models:
+            if isinstance(value, model):
+                return model.get_serializer_class()(value, exclude_fields='chat').data
 
         raise Exception('Unexpected type of tagged object')
 
 
-class ChatSerializer(serializers.ModelSerializer):
+class ChatSerializer(QueryFieldsMixin, SerializerFieldsMixin, serializers.ModelSerializer):
     last_message = MessageObjectRelatedField(read_only=True)
     images = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     audios = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
@@ -69,7 +74,7 @@ class GroupChatSerializer(ChatSerializer):
         fields = ChatSerializer.Meta.fields + ['time']
 
 
-class MessageSerializer(serializers.ModelSerializer):
+class MessageSerializer(QueryFieldsMixin, SerializerFieldsMixin, serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'owner', 'text', 'chat', 'created_at', 'edited', 'edited_at', 'string_type']
         extra_kwargs = {

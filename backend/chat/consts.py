@@ -13,3 +13,4 @@ CHAT_TYPES = {PRIVATE_CHAT: PrivateChat, GROUP_CHAT: GroupChat, ENCRYPTED_PRIVAT
 REVERSE_CHAT_TYPES = {value: key for key, value in CHAT_TYPES.items()}
 CHAT_TYPE_TO_MESSAGE_TYPE = {PrivateChat: PrivateMessage, GroupChat: GroupMessage,
                              EncryptedPrivateChat: EncryptedPrivateMessage}
+MESSAGE_TYPE_TO_CHAT_TYPE = {value: key for key, value in CHAT_TYPE_TO_MESSAGE_TYPE.items()}

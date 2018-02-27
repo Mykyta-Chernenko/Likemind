@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.generics import get_object_or_404, GenericAPIView, CreateAPIView, UpdateAPIView, RetrieveAPIView, \
     DestroyAPIView, ListAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT
 from cryptography.fernet import Fernet
@@ -14,7 +14,7 @@ from backend.settings import PUBLIC_KEY_PERSON_ID
 from users.permissions import BelongToFriendship
 from .models import Person, Friend
 from .serializers import UserSerializer, FriendSerializer
-
+# TODO user search
 
 def activate_account(request, activate_link):
     '''
@@ -131,7 +131,7 @@ class FriendDetailView(DestroyAPIView):
     serializer_class = FriendSerializer
     queryset = Friend.objects.all()
     http_method_names = ['delete']
-    permission_classes = [BelongToFriendship]
+    permission_classes = [IsAuthenticated,BelongToFriendship]
 
 
 class FriendDeleteFriendshipToUser(GenericAPIView):

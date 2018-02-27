@@ -11,7 +11,6 @@ from backend.settings import _redis as r
 from utils.models_methods import _string_type
 
 
-# TODO check if user belongs to chat
 
 class AbstractMessage(models.Model):
     text = models.TextField(max_length=1000)
