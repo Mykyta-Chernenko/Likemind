@@ -24,10 +24,19 @@ from utils.constants import TIME_TZ_FORMAT
 MESSAGE_MAX_NUMBER = 1000
 DEFAULT_MESSAGE_NUMBER = 20
 
+# TODO add chats types that are left
 
 class PrivateChatList(CreateAPIView, ListAPIView):
+    '''
+    get:
+    gets list of private chats for the token user
+
+    post:
+    creates
+    '''
     serializer_class = PrivateChatSerializer
     queryset = PrivateChat.objects.all()
+    http_method_names = ['get', 'post']
 
     def get_queryset(self):
         return PrivateChat.objects.filter(Q(first_user=self.request.user) | Q(second_user=self.request.user))
@@ -98,7 +107,7 @@ class GroupMessageDetail(MessageDetail):
 class ChatContent(ListAPIView):
     page_size = 20
     max_page_size = 200
-
+    # TODO add next and previous page to pagination
     def get_chat(self, **kwargs):
         if kwargs:
             model = kwargs.get('chat_model')

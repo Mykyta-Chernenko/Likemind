@@ -247,5 +247,10 @@ class GroupChat(AbstractChat):
 
 
 class GroupChatUser:
+    BASIC_USER = 'basic-user'
+    ADMIN_USER = 'admin-user'
+    SUPER_ADMIN_USER = 'super-admin-user'
+    type = models.CharField(
+        choices=((BASIC_USER, BASIC_USER), (ADMIN_USER, ADMIN_USER), (SUPER_ADMIN_USER, SUPER_ADMIN_USER)))
     user = models.ForeignKey(Person, on_delete=models.CASCADE)
     group_chat = models.ForeignKey(GroupChat, on_delete=models.CASCADE)

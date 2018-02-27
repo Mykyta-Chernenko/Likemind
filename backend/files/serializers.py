@@ -1,18 +1,9 @@
-import json
-from collections import OrderedDict
-from copy import deepcopy
-
-import os
+from drf_queryfields import QueryFieldsMixin
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
-from rest_framework.fields import empty
-
-from chat.models import PrivateChat, PrivateMessage, GroupChat, EncryptedPrivateChat
-from backend.settings import _redis as r
-from chat.consumers import LAST_MESSAGE, PRIVATE_CHAT
+from chat.models import PrivateChat, GroupChat, EncryptedPrivateChat
 from chat.serializers import PrivateChatSerializer, EncryptedPrivateChatSerializer, GroupChatSerializer
 from files.models import ChatImage, ChatAudio, ChatVideo, ChatFile
-from users.serializers import UserSerializer
+from utils.drf_mixins import SerializerFieldsMixin
 
 
 class ChatObjectRelatedField(serializers.RelatedField):
@@ -22,18 +13,18 @@ class ChatObjectRelatedField(serializers.RelatedField):
         and note instances using a note serializer.
         """
         if isinstance(value, PrivateChat):
-            serializer = PrivateChatSerializer(value, short=True)
+            serializer = PrivateChatSerializer(value, exclude_fields='first_user,second_user')
         elif isinstance(value, EncryptedPrivateChat):
-            serializer = EncryptedPrivateChatSerializer(value, short=True)
+            serializer = EncryptedPrivateChatSerializer(value, exclude_fields='first_user,second_user')
         elif isinstance(value, GroupChat):
-            serializer = GroupChatSerializer(value, short=True)
+            serializer = GroupChatSerializer(value, exclude_fields='first_user,second_user')
         else:
             raise Exception('Unexpected type of tagged object')
 
         return serializer.data
 
 
-class _ChatFileSerializer(serializers.ModelSerializer):
+class _ChatFileSerializer(QueryFieldsMixin, SerializerFieldsMixin, serializers.ModelSerializer):
     chat = ChatObjectRelatedField(read_only=True)
 
     class Meta:
@@ -65,4 +56,3 @@ class ChatAudioSerializer(_ChatFileSerializer):
     class Meta(_ChatFileSerializer.Meta):
         model = ChatAudio
         fields = _ChatFileSerializer.Meta.fields + ['audio']
-

@@ -7,6 +7,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from phonenumber_field.modelfields import PhoneNumberField
 
+from backend import settings
 from backend.settings import ACCOUNT_ACTIVATION_DAYS
 from users.managers import PersonManager
 
@@ -21,6 +22,8 @@ class Person(AbstractUser):
     def save(self, *args, **kwargs):
         if self.is_staff:
             self.is_active = True
+        if settings.DEBUG:
+            self.is_active = True # activate user without email confirmation for dev purposes
         return super(Person, self).save()
 
     @property

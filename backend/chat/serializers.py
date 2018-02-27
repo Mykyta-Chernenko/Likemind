@@ -37,19 +37,15 @@ class ChatSerializer(serializers.ModelSerializer):
 
 
 class _PrivateChatSeriliazer(ChatSerializer):
-    first_user = UserSerializer(short=True)
-    second_user = UserSerializer(short=True)
+    first_user = UserSerializer(exclude_fields='friends')
+    second_user = UserSerializer(exclude_fields='friends')
 
     class Meta:
         fields = ChatSerializer.Meta.fields + ['first_user', 'second_user']
 
     def __init__(self, *args, short=False, **kwargs):
         super(_PrivateChatSeriliazer, self).__init__(*args, **kwargs)
-        if short:
-            if 'first_user' in self.fields:
-                self.fields.pop('first_user')
-            if 'second_user' in self.fields:
-                self.fields.pop('second_user')
+
 
 
 class PrivateChatSerializer(_PrivateChatSeriliazer):

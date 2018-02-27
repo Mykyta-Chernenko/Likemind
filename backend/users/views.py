@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from django.db.models import Q
 from django.http import HttpResponse
 from rest_framework import renderers
@@ -11,12 +9,18 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT
 from cryptography.fernet import Fernet
+
 from backend.settings import PUBLIC_KEY_PERSON_ID
 from .models import Person, Friend
-from .serializers import CreateUserSerializer, UserSerializer, FriendSerializer
+from .serializers import UserSerializer, FriendSerializer
 
 
 def activate_account(request, activate_link):
+    '''
+    :param request: django request
+    :param activate_link: link that was sent to email and can't be decoded with key
+    :return: Http response about successful activation or error occurred
+    '''
     cryption = Fernet(PUBLIC_KEY_PERSON_ID)
     id = cryption.decrypt(activate_link.encode('utf-8')).decode('utf-8')
     person = get_object_or_404(Person, id=id)
@@ -26,9 +30,13 @@ def activate_account(request, activate_link):
 
 
 class ObtainAuthToken(GenericAPIView):
+    '''
+    post:
+    accepts user's username/email/phone as username field and password and returns jwt token
+    '''
     renderer_classes = (renderers.JSONRenderer,)
     serializer_class = AuthTokenSerializer
-    http_method_names = ('post',)
+    http_method_names = ['post']
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -49,14 +57,6 @@ class UserListView(CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
     http_method_names = ['post']
-
-    # def create(self, request, *args, **kwargs):
-    #     serializer = self.serializer_class(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     person = serializer.create(serializer.validated_data)
-    #     token = obtain_jwt_token(request._request, username=serializer.validated_data['username'],
-    #                              password=serializer.validated_data['password'])
-    #     return JsonResponse(status=201, data={'id': person.id, 'token': str(token)})
 
 
 class UserDetailView(UpdateAPIView, RetrieveAPIView, DestroyAPIView):
@@ -108,6 +108,14 @@ class SelfUserDetailView(UserDetailView):
 
 
 class FriendListView(CreateAPIView, ListAPIView):
+    '''
+    get:
+    gets list of friendship objects for the user from the token
+    (If you want to get person's followers, friend etc. you'd better request user's details)
+    (To check relationship between users use check relationship view
+    post:
+    creates one-way friendship from the token user to the second one
+    '''
     serializer_class = FriendSerializer
     queryset = Friend.objects.all()
     http_method_names = ['get', 'post']
@@ -151,7 +159,7 @@ class FriendDeleteFriendshipToUser(GenericAPIView):
         response = {}
         response['text'] = f"{user} doesn't follow user{second} now"
         response.update(FriendCheckRelationsWithUser.get_relationship_from_first_to_second_user(user, second))
-        return Response(data=f"{user} doesn't follow user{second} now",status=HTTP_204_NO_CONTENT)
+        return Response(data=f"{user} doesn't follow user{second} now", status=HTTP_204_NO_CONTENT)
 
 
 class FriendCheckRelationsWithUser(GenericAPIView):

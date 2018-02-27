@@ -13,17 +13,15 @@ from files.models import ChatFile, ChatImage, ChatAudio, ChatVideo
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatAudioSerializer, ChatVideoSerializer
 from utils.websocket_utils import WebSocketEvent, ActionType, ChatFileMessageAction, ChatImageMessageAction, \
     ChatAudioMessageAction, ChatVideoMessageAction
+
+
 # TODO check if user belongs to chat
 
 class _ChatFileList(CreateAPIView, ListAPIView):
-    '''
-    requires chat-type from url (private-chat, group-chat, encrypted-private-chat) and its id
-
-    create
-    '''
-    serializer_class = ChatFileSerializer
-    queryset = ChatFile.objects.all()
-    ActionType = ActionType
+    http_method_names = ['get', 'post']
+    serializer_class = None
+    queryset = None
+    ActionType = None
     field = None
 
     def get_chat(self, **kwargs):
@@ -51,7 +49,6 @@ class _ChatFileList(CreateAPIView, ListAPIView):
         model = kwargs.get('chat_model')
         model_name = REVERSE_CHAT_TYPES[model]
         model_string_name = f'{model_name}-{object_id}'
-        # noinspection PyArgumentList
         action = self.ActionType(id=id, chat_type=model_name, chat=chat['id'], owner=request.user.id,
                                  created_at=time, **{self.field: content})
 
@@ -81,6 +78,15 @@ class _ChatFileList(CreateAPIView, ListAPIView):
 
 
 class ChatFileList(_ChatFileList):
+    '''
+    post:
+    requires chat-type from url (private-chat, group-chat, encrypted-private-chat) and its id.
+    Creates file in the related chat
+
+    get:
+    requires chat-type from url (private-chat, group-chat, encrypted-private-chat) and its id.
+    get list of files in the related chat
+    '''
     serializer_class = ChatFileSerializer
     queryset = ChatFile.objects.all()
     ActionType = ChatFileMessageAction
@@ -88,6 +94,15 @@ class ChatFileList(_ChatFileList):
 
 
 class ChatImageList(_ChatFileList):
+    '''
+    post:
+    requires chat-type from url (private-chat, group-chat, encrypted-private-chat) and its id.
+    Creates image in the related chat
+
+    get:
+    requires chat-type from url (private-chat, group-chat, encrypted-private-chat) and its id.
+    get list of images in the related chat
+    '''
     serializer_class = ChatImageSerializer
     queryset = ChatImage.objects.all()
     ActionType = ChatImageMessageAction
@@ -95,6 +110,15 @@ class ChatImageList(_ChatFileList):
 
 
 class ChatAudioList(_ChatFileList):
+    '''
+    post:
+    requires chat-type from url (private-chat, group-chat, encrypted-private-chat) and its id.
+    Creates audio in the related chat
+
+    get:
+    requires chat-type from url (private-chat, group-chat, encrypted-private-chat) and its id.
+    get list of audios in the related chat
+    '''
     serializer_class = ChatAudioSerializer
     queryset = ChatAudio.objects.all()
     ActionType = ChatAudioMessageAction
@@ -103,13 +127,15 @@ class ChatAudioList(_ChatFileList):
 
 class ChatVideoList(_ChatFileList):
     '''
+
     post:
+    requires chat-type from url (private-chat, group-chat, encrypted-private-chat) and its id.
     Creates video in the related chat
 
     get:
+    requires chat-type from url (private-chat, group-chat, encrypted-private-chat) and its id.
     get list of videos in the related chat
     '''
-    http_method_names = ['get', 'post']
     serializer_class = ChatVideoSerializer
     queryset = ChatVideo.objects.all()
     ActionType = ChatVideoMessageAction
