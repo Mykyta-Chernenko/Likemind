@@ -196,13 +196,14 @@ class AbstractPrivateChat(AbstractChat):
 
     class Meta(AbstractChat.Meta):
         abstract = True
-        unique_together = ('first_user', 'second_user')
+        unique_together = [['first_user', 'second_user']]
 
     def __str__(self):
         return f' {self.first_user} and {self.second_user}'
 
+
     def clean(self):
-        if self.first_user and self.second_user and self.first_user.id > self.second_user.id:
+        if hasattr(self,'first_user') and hasattr(self,'second_user') and self.first_user.id > self.second_user.id:
             raise ValidationError('The first user must have lower id than the second. Swap users')
 
     def get_users(self):
@@ -210,7 +211,7 @@ class AbstractPrivateChat(AbstractChat):
 
 
 class PrivateChat(AbstractPrivateChat):
-    class Meta(AbstractChat.Meta):
+    class Meta(AbstractPrivateChat.Meta):
         verbose_name = 'private-chat'
 
     @classmethod

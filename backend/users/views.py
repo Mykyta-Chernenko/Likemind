@@ -11,6 +11,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT
 from cryptography.fernet import Fernet
 
 from backend.settings import PUBLIC_KEY_PERSON_ID
+from users.permissions import BelongToFriendship
 from .models import Person, Friend
 from .serializers import UserSerializer, FriendSerializer
 
@@ -59,14 +60,8 @@ class UserListView(CreateAPIView):
     http_method_names = ['post']
 
 
-class UserDetailView(UpdateAPIView, RetrieveAPIView, DestroyAPIView):
+class UserDetailView(RetrieveAPIView):
     '''
-    put:
-    Update a person's info
-
-    delete:
-    Delete a person
-
     get:
     Get a person
     '''
@@ -89,7 +84,7 @@ class UserDetailView(UpdateAPIView, RetrieveAPIView, DestroyAPIView):
         return Response(serializer, status=200)
 
 
-class SelfUserDetailView(UserDetailView):
+class SelfUserDetailView(UserDetailView, UpdateAPIView, DestroyAPIView):
     '''
     Operates the user tha is taken from JWT token
     put:
@@ -136,12 +131,13 @@ class FriendDetailView(DestroyAPIView):
     serializer_class = FriendSerializer
     queryset = Friend.objects.all()
     http_method_names = ['delete']
+    permission_classes = [BelongToFriendship]
 
 
 class FriendDeleteFriendshipToUser(GenericAPIView):
     '''
     delete:
-    requires param:user to whom friendship should be deleted
+    requires param:user_id to whom friendship should be deleted
     (removing will be made in one way. So if users are friends and the first user deletes friendship to the second one,
     second one will become the follower of the first). Returns updated relationship between users
     '''
@@ -155,7 +151,7 @@ class FriendDeleteFriendshipToUser(GenericAPIView):
         if not second:
             return Response(status=HTTP_400_BAD_REQUEST, data='no second user specified')
         second = get_object_or_404(Person, pk=second)
-        Friend.objects.filter(second=second).delete()
+        Friend.objects.filter(first=user, second=second).delete()
         response = {}
         response['text'] = f"{user} doesn't follow user{second} now"
         response.update(FriendCheckRelationsWithUser.get_relationship_from_first_to_second_user(user, second))

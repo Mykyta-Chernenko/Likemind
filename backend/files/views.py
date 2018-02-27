@@ -10,15 +10,15 @@ from chat.consts import REVERSE_CHAT_TYPES, LAST_MESSAGE
 from chat.consumers import CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT
 from files.consts import FILE_MESSAGE_FIELD, IMAGE_MESSAGE_FIELD, AUDIO_MESSAGE_FIELD, VIDEO_MESSAGE_FIELD
 from files.models import ChatFile, ChatImage, ChatAudio, ChatVideo
+from files.permissions import BelongToChat
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatAudioSerializer, ChatVideoSerializer
 from utils.websocket_utils import WebSocketEvent, ActionType, ChatFileMessageAction, ChatImageMessageAction, \
     ChatAudioMessageAction, ChatVideoMessageAction
 
 
-# TODO check if user belongs to chat
-
 class _ChatFileList(CreateAPIView, ListAPIView):
     http_method_names = ['get', 'post']
+    permission_classes = [BelongToChat]
     serializer_class = None
     queryset = None
     ActionType = None

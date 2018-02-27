@@ -24,6 +24,7 @@ from utils.constants import TIME_TZ_FORMAT
 MESSAGE_MAX_NUMBER = 1000
 DEFAULT_MESSAGE_NUMBER = 20
 
+
 # TODO add chats types that are left
 
 class PrivateChatList(CreateAPIView, ListAPIView):
@@ -41,6 +42,11 @@ class PrivateChatList(CreateAPIView, ListAPIView):
     def get_queryset(self):
         return PrivateChat.objects.filter(Q(first_user=self.request.user) | Q(second_user=self.request.user))
 
+    def perform_create(self, serializer):
+        first, second = self.request.user, serializer.validated_data['second_user']
+        first, serializer.validated_data['second_user'] = (first, second) if first.id < second.id else (second, first)
+        serializer.save(first_user=first)
+
 
 class Message():
     def get_queryset(self):
@@ -55,9 +61,11 @@ class MessageList(CreateAPIView, ListAPIView, Message):
     create: creates message in related chat
     '''
     pagination_class = MessageListPagination
+
     def get_queryset(self):
         chat_id = self.kwargs.get('chat_id')
         return self.queryset.filter(chat__pk=chat_id)
+
     def perform_create(self, serializer):
         chat = get_object_or_404(self.serializer_class.Meta.model, pk=self.kwargs['chat_id'])
         serializer.save(chat=chat, owner=self.request.user)
@@ -107,6 +115,7 @@ class GroupMessageDetail(MessageDetail):
 class ChatContent(ListAPIView):
     page_size = 20
     max_page_size = 200
+
     # TODO add next and previous page to pagination
     def get_chat(self, **kwargs):
         if kwargs:
@@ -142,7 +151,7 @@ class ChatContent(ListAPIView):
                     page_size = self.page_size
             except (KeyError, ValueError, TypeError):
                 pass
-            for ind,object in enumerate(content):
+            for ind, object in enumerate(content):
                 content[ind] = object.all().filter(created_at__gte=from_date)[:page_size]
         else:
             for ind, object in enumerate(content):

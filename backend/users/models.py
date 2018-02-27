@@ -36,7 +36,7 @@ class Friend(models.Model):
     second = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='second_set', verbose_name='friendhship to')
 
     class Meta:
-        unique_together = ['first', 'second']
+        unique_together = [['first', 'second']]
 
     def __str__(self):
         return f'{self.first.username} to {self.second.username}'

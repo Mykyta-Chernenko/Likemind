@@ -64,5 +64,3 @@ class FriendSerializer(QueryFieldsMixin, SerializerFieldsMixin, serializers.Mode
         model = Friend
         fields = ['id', 'first', 'second']
         depth = 1
-
-
