@@ -139,6 +139,14 @@ class ChatContent(ListAPIView):
         audios = chat.audios
         from_date = request.GET.get(self.page_query_param)
         page_size = self.page_size
+        try:
+            page_size = int(request.GET.get('page_size'))
+            if page_size > self.max_page_size:
+                page_size = self.max_page_size
+            if page_size < self.page_size:
+                page_size = self.page_size
+        except (KeyError, ValueError, TypeError):
+            pass
         content = [messages, files, images, videos, audios]
         if from_date:
             try:
@@ -146,32 +154,31 @@ class ChatContent(ListAPIView):
             except ValueError:
                 raise Response(status=status.HTTP_400_BAD_REQUEST,
                                data='wrong date format use %Y-%m-%dT%H:%M:%S.%fZ')
-            try:
-                page_size = int(request.GET.get('page_size'))
-                if page_size > self.max_page_size:
-                    page_size = self.max_page_size
-                if page_size < self.page_size:
-                    page_size = self.page_size
-            except (KeyError, ValueError, TypeError):
-                pass
+
             for ind, object in enumerate(content):
                 content[ind] = object.all().filter(created_at__gt=from_date)[:page_size]
         else:
             for ind, object in enumerate(content):
                 content[ind] = object.all()[:page_size]
         messages, files, images, videos, audios = content
-        messages_serialized = chat.message_set.model.get_serializer_class()(messages, many=True).data
-        files_serialized = ChatFileSerializer(files, many=True).data
-        images_serialized = ChatImageSerializer(images, many=True).data
-        videos_serialized = ChatVideoSerializer(videos, many=True).data
-        audios_serialized = ChatAudioSerializer(audios, many=True).data
+        _kwargs = {
+            'context': self.get_serializer_context(),
+            'many': True,
+            'exclude_fields': 'chat'
+        }
+
+        messages_serialized = chat.message_set.model.get_serializer_class()(messages, **_kwargs).data
+        files_serialized = ChatFileSerializer(files, **_kwargs).data
+        images_serialized = ChatImageSerializer(images, **_kwargs).data
+        videos_serialized = ChatVideoSerializer(videos, **_kwargs).data
+        audios_serialized = ChatAudioSerializer(audios, **_kwargs).data
         result = sorted(
             chain(files_serialized, images_serialized, videos_serialized, audios_serialized, messages_serialized),
             key=lambda x: datetime.strptime(x['created_at'], TIME_TZ_FORMAT))[:page_size]
 
         count = len(result)
         date_from = result[-1]['created_at']
-        if count < 20:
+        if count < page_size:
             next = None
         else:
             url = self.request.build_absolute_uri()
