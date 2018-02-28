@@ -4,7 +4,7 @@
   "pk": 1,
   "fields": {
     "password": "pbkdf2_sha256$100000$qdRmETqULTQs$cSwhcLcR62wVe8LJ01PUpsRevfWAVXi6v2uJa5RIvhE=",
-    "last_login": "2018-02-19T13:39:57Z",
+    "last_login": "2018-02-28T16:42:10Z",
     "is_superuser": true,
     "username": "admin",
     "first_name": "",
@@ -14,6 +14,7 @@
     "is_active": true,
     "phone": "+380677048481",
     "email": "admin@gmail.com",
+    "birthday": "2008-02-28",
     "groups": [],
     "user_permissions": []
   }
@@ -29,10 +30,11 @@
     "first_name": "",
     "last_name": "",
     "is_staff": false,
-    "date_joined": "2018-02-12T12:19:12.793Z",
+    "date_joined": "2018-02-12T12:19:12Z",
     "is_active": true,
     "phone": "+380677048483",
     "email": "nikita@gmail.com",
+    "birthday": "2005-04-01",
     "groups": [],
     "user_permissions": []
   }
@@ -48,10 +50,11 @@
     "first_name": "",
     "last_name": "",
     "is_staff": false,
-    "date_joined": "2018-02-12T12:23:23.121Z",
+    "date_joined": "2018-02-12T12:23:23Z",
     "is_active": true,
     "phone": "+380677048484",
     "email": "denis@gmail.com",
+    "birthday": "2003-01-30",
     "groups": [],
     "user_permissions": []
   }
@@ -67,10 +70,11 @@
     "first_name": "",
     "last_name": "",
     "is_staff": false,
-    "date_joined": "2018-02-12T12:23:38.151Z",
+    "date_joined": "2018-02-12T12:23:38Z",
     "is_active": true,
     "phone": "+380677048485",
     "email": "artem@gmail.com",
+    "birthday": "2000-02-28",
     "groups": [],
     "user_permissions": []
   }

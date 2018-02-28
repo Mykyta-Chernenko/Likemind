@@ -1,10 +1,7 @@
 from django.core.mail import send_mail
 from rest_framework import serializers
-
 from backend.settings import PUBLIC_KEY_PERSON_ID, DOMAIN
 from cryptography.fernet import Fernet
-
-from chat.models import PrivateMessage
 from utils.drf_mixins import SerializerFieldsMixin
 from .models import Person, Friend
 from drf_queryfields import QueryFieldsMixin
@@ -29,7 +26,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 class NestedUserSerializer(QueryFieldsMixin, SerializerFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Person
-        fields = ('id', 'email', 'username', 'phone', 'first_name', 'last_name', 'password')
+        fields = ('id', 'email', 'username', 'phone', 'first_name', 'last_name', 'birthday', 'password')
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -39,6 +36,7 @@ class UserSerializer(NestedUserSerializer):
     class Meta(NestedUserSerializer.Meta):
         fields = NestedUserSerializer.Meta.fields
         depth = 2
+
 
     def create(self, validated_data):
         user = super(UserSerializer, self).create(validated_data)

@@ -1,8 +1,10 @@
 from django.db.models import Q
 from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import renderers
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404, GenericAPIView, CreateAPIView, UpdateAPIView, RetrieveAPIView, \
     DestroyAPIView, ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -11,9 +13,12 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT
 from cryptography.fernet import Fernet
 
 from backend.settings import PUBLIC_KEY_PERSON_ID
+from users.filters import PersonFilter
 from users.permissions import BelongToFriendship
 from .models import Person, Friend
 from .serializers import UserSerializer, FriendSerializer
+
+
 # TODO user search
 
 def activate_account(request, activate_link):
@@ -50,14 +55,26 @@ class ObtainAuthToken(GenericAPIView):
         return Response(user_details)
 
 
-class UserListView(CreateAPIView):
+class UserListView(CreateAPIView, ListAPIView):
     '''
     post:
     Create a new person. Creates email for account verifying.
     '''
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
-    http_method_names = ['post']
+    http_method_names = ['post', 'get']
+    queryset = Person.objects.all()
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['username', 'first_name', 'last_name']
+    filter_class = PersonFilter
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            self.permission_classes = [IsAuthenticated]
+        else:
+            self.permission_classes = [AllowAny]
+
+        return super(UserListView, self).get_permissions()
 
 
 class UserDetailView(RetrieveAPIView):
@@ -131,7 +148,7 @@ class FriendDetailView(DestroyAPIView):
     serializer_class = FriendSerializer
     queryset = Friend.objects.all()
     http_method_names = ['delete']
-    permission_classes = [IsAuthenticated,BelongToFriendship]
+    permission_classes = [IsAuthenticated, BelongToFriendship]
 
 
 class FriendDeleteFriendshipToUser(GenericAPIView):

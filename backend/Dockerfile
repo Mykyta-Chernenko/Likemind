@@ -16,3 +16,4 @@ RUN pip install Pillow==5.0.0
 RUN pip install django-phonenumber-field==2.0.0
 RUN pip install channels==2.0.2
 RUN pip install channels_redis==2.0.3
+RUN pip install django-filter

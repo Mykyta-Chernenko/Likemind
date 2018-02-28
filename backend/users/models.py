@@ -17,13 +17,14 @@ class Person(AbstractUser):
     friends = models.ManyToManyField('self', through='Friend', symmetrical=False)
     phone = PhoneNumberField('phone', unique=True)
     email = models.EmailField('email address', unique=True)
+    birthday = models.DateField('birthday')
     manager = PersonManager
 
     def save(self, *args, **kwargs):
         if self.is_staff:
             self.is_active = True
         if settings.DEBUG:
-            self.is_active = True # activate user without email confirmation for dev purposes
+            self.is_active = True  # activate user without email confirmation for dev purposes
         return super(Person, self).save()
 
     @property
@@ -32,8 +33,10 @@ class Person(AbstractUser):
 
 
 class Friend(models.Model):
-    first = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='first_set', verbose_name='friendship from')
-    second = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='second_set', verbose_name='friendhship to')
+    first = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='first_set',
+                              verbose_name='friendship from')
+    second = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='second_set',
+                               verbose_name='friendhship to')
 
     class Meta:
         unique_together = [['first', 'second']]
