@@ -103,7 +103,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 #         }
 #     }
 # else:
-    # Building the Docker image
+# Building the Docker image
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -195,7 +195,9 @@ CHANNEL_LAYERS = {
 }
 ASGI_APPLICATION = "backend.routing.application"
 JWT_AUTH = {
-    'JWT_VERIFY_EXPIRATION': False  # change in production
+    'JWT_VERIFY_EXPIRATION': False,  # change in production
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_REFRESH_EXPIRATION_DELTA': 60 * 60 * 24 * 7
 }
 FIXTURE_DIRS = (
     os.path.join(PROJECT_DIR, 'fixtures'),
