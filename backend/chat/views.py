@@ -20,7 +20,7 @@ from chat.paginations import MessageListPagination
 from chat.permissions import AllowMessageToOwner, MessageBelongToChat
 from chat.serializers import PrivateChatSerializer, PrivateMessageSerializer, EncryptedPrivateMessageSerializer, \
     GroupMessageSerializer
-from files.permissions import FileBelongToChat
+from files.permissions import UserBelongToChat
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatVideoSerializer, ChatAudioSerializer
 from utils.constants import TIME_TZ_FORMAT
 
@@ -117,6 +117,7 @@ class ChatContent(ListAPIView):
     page_size = 20
     max_page_size = 200
     page_query_param = 'date_from'
+    permission_classes = [IsAuthenticated, UserBelongToChat]
 
     # TODO add next and previous page to pagination
     def get_chat(self, **kwargs):
@@ -154,7 +155,7 @@ class ChatContent(ListAPIView):
             except (KeyError, ValueError, TypeError):
                 pass
             for ind, object in enumerate(content):
-                content[ind] = object.all().filter(created_at__gte=from_date)[:page_size]
+                content[ind] = object.all().filter(created_at__gt=from_date)[:page_size]
         else:
             for ind, object in enumerate(content):
                 content[ind] = object.all()[:page_size]
@@ -169,13 +170,12 @@ class ChatContent(ListAPIView):
             key=lambda x: datetime.strptime(x['created_at'], TIME_TZ_FORMAT))[:page_size]
 
         count = len(result)
-        data_from = date_from = result[-1].created_at
+        date_from = result[-1]['created_at']
         if count < 20:
             next = None
         else:
             url = self.request.build_absolute_uri()
-            date_from = result[-1].created_at
-            next = replace_query_param(url, self.page_query_param, data_from)
+            next = replace_query_param(url, self.page_query_param, date_from)
         data = {
             'next': next,
             'count': count,

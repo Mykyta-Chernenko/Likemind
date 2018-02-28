@@ -12,7 +12,7 @@ from chat.consts import REVERSE_CHAT_TYPES, LAST_MESSAGE
 from chat.consumers import CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT
 from files.consts import FILE_MESSAGE_FIELD, IMAGE_MESSAGE_FIELD, AUDIO_MESSAGE_FIELD, VIDEO_MESSAGE_FIELD
 from files.models import ChatFile, ChatImage, ChatAudio, ChatVideo
-from files.permissions import FileBelongToChat
+from files.permissions import UserBelongToChat
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatAudioSerializer, ChatVideoSerializer
 from utils.websocket_utils import WebSocketEvent, ActionType, ChatFileMessageAction, ChatImageMessageAction, \
     ChatAudioMessageAction, ChatVideoMessageAction
@@ -20,7 +20,7 @@ from utils.websocket_utils import WebSocketEvent, ActionType, ChatFileMessageAct
 # TODO add file detail
 class _ChatFileList(CreateAPIView, ListAPIView):
     http_method_names = ['get', 'post']
-    permission_classes = [IsAuthenticated, FileBelongToChat]
+    permission_classes = [IsAuthenticated, UserBelongToChat]
     serializer_class = None
     queryset = None
     ActionType = None
