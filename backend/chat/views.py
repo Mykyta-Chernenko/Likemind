@@ -17,7 +17,7 @@ from rest_framework.utils.urls import replace_query_param
 from chat.consts import MESSAGE_TYPE_TO_CHAT_TYPE
 from chat.models import PrivateChat, PrivateMessage, EncryptedPrivateMessage, GroupMessage
 from chat.paginations import MessageListPagination
-from chat.permissions import AllowMessageToOwner, MessageBelongToChat
+from chat.permissions import MessageBelongToChatAndUserIsOwner
 from chat.serializers import PrivateChatSerializer, PrivateMessageSerializer, EncryptedPrivateMessageSerializer, \
     GroupMessageSerializer
 from files.permissions import UserBelongToChat
@@ -52,7 +52,7 @@ class PrivateChatList(CreateAPIView, ListAPIView):
 
 
 class Message():
-    permission_classes = [IsAuthenticated, MessageBelongToChat]
+    permission_classes = [IsAuthenticated, MessageBelongToChatAndUserIsOwner]
 
     def get_queryset(self):
         chat_id = self.kwargs.get('chat_id')
@@ -119,7 +119,6 @@ class ChatContent(ListAPIView):
     page_query_param = 'date_from'
     permission_classes = [IsAuthenticated, UserBelongToChat]
 
-    # TODO add next and previous page to pagination
     def get_chat(self, **kwargs):
         if kwargs:
             model = kwargs.get('chat_model')

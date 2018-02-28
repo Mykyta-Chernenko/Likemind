@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from backend.settings import _redis as r
 from asgiref.sync import async_to_sync
 from django.contrib.contenttypes.models import ContentType
-from rest_framework.generics import CreateAPIView, ListAPIView, get_object_or_404
+from rest_framework.generics import CreateAPIView, ListAPIView, get_object_or_404, DestroyAPIView, RetrieveAPIView
 from chat.consts import REVERSE_CHAT_TYPES, LAST_MESSAGE
 from chat.consumers import CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT
 from files.consts import FILE_MESSAGE_FIELD, IMAGE_MESSAGE_FIELD, AUDIO_MESSAGE_FIELD, VIDEO_MESSAGE_FIELD
@@ -17,7 +17,7 @@ from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatAudio
 from utils.websocket_utils import WebSocketEvent, ActionType, ChatFileMessageAction, ChatImageMessageAction, \
     ChatAudioMessageAction, ChatVideoMessageAction
 
-# TODO add file detail
+
 class _ChatFileList(CreateAPIView, ListAPIView):
     http_method_names = ['get', 'post']
     permission_classes = [IsAuthenticated, UserBelongToChat]
@@ -35,6 +35,10 @@ class _ChatFileList(CreateAPIView, ListAPIView):
             model_id = self.kwargs.get('chat_id')
         chat = get_object_or_404(model, pk=model_id)
         return ContentType.objects.get(app_label=chat._meta.app_label, model=chat._meta.model_name), model_id
+
+    def get_queryset(self):
+        content_type, object_id = self.get_chat()
+        return self.queryset.filter(content_type=content_type, object_id=object_id)
 
     def create(self, request, *args, **kwargs):
         content_type, object_id = self.get_chat(**kwargs)
@@ -68,10 +72,6 @@ class _ChatFileList(CreateAPIView, ListAPIView):
     def perform_create(self, serializer):
         content_type, object_id = self.get_chat()
         serializer.save(content_type=content_type, object_id=object_id, owner=self.request.user)
-
-    def get_queryset(self):
-        content_type, object_id = self.get_chat()
-        return self.queryset.filter(content_type=content_type, object_id=object_id)
 
     def list(self, request, *args, **kwargs):
         content_type, object_id = self.get_chat(**kwargs)
@@ -142,3 +142,55 @@ class ChatVideoList(_ChatFileList):
     queryset = ChatVideo.objects.all()
     ActionType = ChatVideoMessageAction
     field = VIDEO_MESSAGE_FIELD
+
+
+class _ChatFileDetail(DestroyAPIView, RetrieveAPIView):
+    http_method_names = ['get', 'post']
+    permission_classes = [IsAuthenticated, UserBelongToChat]
+    serializer_class = None
+    queryset = None
+
+
+class ChatFileDetail(_ChatFileDetail):
+    '''
+    post:
+    destroys the file
+
+    get:
+    retrieve the file
+    '''
+    serializer_class = ChatFileSerializer
+    queryset = ChatFile.objects.all()
+
+class ChatImageDetail(_ChatFileDetail):
+    '''
+    post:
+    destroys the image
+
+    get:
+    retrieve the image
+    '''
+    serializer_class = ChatImageSerializer
+    queryset = ChatImage.objects.all()
+
+class ChatVideoDetail(_ChatFileDetail):
+    '''
+    post:
+    destroys the video
+
+    get:
+    retrieve the video
+    '''
+    serializer_class = ChatVideoSerializer
+    queryset = ChatVideo.objects.all()
+
+class ChatAudioDetail(_ChatFileDetail):
+    '''
+    post:
+    destroys the audio
+
+    get:
+    retrieve the audio
+    '''
+    serializer_class = ChatAudioSerializer
+    queryset = ChatAudio.objects.all()
