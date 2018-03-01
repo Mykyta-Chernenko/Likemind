@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'channels',
     'corsheaders',
     'phonenumber_field',
+    'django_filters',
 
     'users',
     'chat',

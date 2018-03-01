@@ -4,11 +4,13 @@ from rest_framework.permissions import BasePermission
 from chat.consts import MESSAGE_TYPE_TO_CHAT_TYPE
 
 
-class MessageBelongToChatAndUserIsOwner(BasePermission):
+class UserBelongToChat(BasePermission):
     def has_object_permission(self, request, view, obj):
-        return obj.owner == request.user
+        return request.user in obj.chat.get_users()
 
     def has_permission(self, request, view):
-        chat_model = MESSAGE_TYPE_TO_CHAT_TYPE[view.serializer_class.Meta.model]
-        chat = get_object_or_404(chat_model, pk=view.kwargs['chat_id'])
+        model = view.kwargs.get('chat_model')
+        model_id = view.kwargs.get('chat_id')
+
+        chat = get_object_or_404(model, pk=model_id)
         return request.user in chat.get_users()

@@ -11,8 +11,6 @@ from backend.settings import _redis as r
 from utils.models_methods import _string_type
 
 
-# TODO check if user belongs to chat
-
 class AbstractMessage(models.Model):
     text = models.TextField(max_length=1000)
     owner = models.ForeignKey(Person, on_delete=models.CASCADE)
@@ -40,8 +38,7 @@ class AbstractMessage(models.Model):
 
     @classmethod
     def get_field(cls):
-        from chat.consts import TEXT_MESSAGE_FIELD
-        return TEXT_MESSAGE_FIELD
+        return cls.text.field_name
 
     @classmethod
     def get_serializer_class(cls):
@@ -108,15 +105,15 @@ class AbstractChat(models.Model):
         abstract = True
 
     def last_message(self):
-        from chat.consts import LAST_MESSAGE, REVERSE_CHAT_TYPES, CHAT_TYPE_TO_MESSAGE_TYPE, CHAT_TYPES
-        model_string_name = REVERSE_CHAT_TYPES[self._meta.model]
+        from chat.consts import LAST_MESSAGE
+        model_string_name = self._meta.model.string_type()
         redis_chat_last_message = f'{model_string_name}-{self.id}-{LAST_MESSAGE}'
         exist = r.exists(redis_chat_last_message)
         from chat.consts import TEXT_MESSAGE_FIELD
-        from files.consts import IMAGE_MESSAGE_FIELD, AUDIO_MESSAGE_FIELD, VIDEO_MESSAGE_FIELD, FILE_MESSAGE_FIELD, \
-            FILE_MODEL_FROM_FIELD
+
         if exist:
             last_message = {}
+            from files.consts import IMAGE_MESSAGE_FIELD, VIDEO_MESSAGE_FIELD, AUDIO_MESSAGE_FIELD, FILE_MESSAGE_FIELD
             message_type_variants = [TEXT_MESSAGE_FIELD, IMAGE_MESSAGE_FIELD,
                                      AUDIO_MESSAGE_FIELD, VIDEO_MESSAGE_FIELD,
                                      FILE_MESSAGE_FIELD]
@@ -144,9 +141,11 @@ class AbstractChat(models.Model):
                 return None
             result = None
             if last_message_type is TEXT_MESSAGE_FIELD:
+                from chat.consts import CHAT_TYPE_TO_MESSAGE_TYPE
                 result = CHAT_TYPE_TO_MESSAGE_TYPE[self._meta.model](**last_message)
             else:
-                result = FILE_MODEL_FROM_FIELD[last_message_type](**last_message)
+                from utils.consts import MODEL_FROM_FIELD
+                result = MODEL_FROM_FIELD[last_message_type](**last_message)
 
             return result
         else:
@@ -162,7 +161,7 @@ class AbstractChat(models.Model):
             if not last_objects:
                 return None
             obj = sorted(last_objects, key=lambda x: x.created_at, reverse=True)[0]
-            model_name = REVERSE_CHAT_TYPES[obj.chat._meta.model]
+            model_name = obj.chat.string_type()
             field = obj.get_field()
             extra_fields = {field: getattr(obj, field)}
             if obj.get_field() == TEXT_MESSAGE_FIELD:
@@ -196,13 +195,13 @@ class AbstractPrivateChat(AbstractChat):
 
     class Meta(AbstractChat.Meta):
         abstract = True
-        unique_together = ('first_user', 'second_user')
+        unique_together = [['first_user', 'second_user']]
 
     def __str__(self):
         return f' {self.first_user} and {self.second_user}'
 
     def clean(self):
-        if self.first_user and self.second_user and self.first_user.id > self.second_user.id:
+        if hasattr(self, 'first_user') and hasattr(self, 'second_user') and self.first_user.id > self.second_user.id:
             raise ValidationError('The first user must have lower id than the second. Swap users')
 
     def get_users(self):
@@ -210,7 +209,7 @@ class AbstractPrivateChat(AbstractChat):
 
 
 class PrivateChat(AbstractPrivateChat):
-    class Meta(AbstractChat.Meta):
+    class Meta(AbstractPrivateChat.Meta):
         verbose_name = 'private-chat'
 
     @classmethod
@@ -247,5 +246,10 @@ class GroupChat(AbstractChat):
 
 
 class GroupChatUser:
+    BASIC_USER = 'basic-user'
+    ADMIN_USER = 'admin-user'
+    SUPER_ADMIN_USER = 'super-admin-user'
+    type = models.CharField(
+        choices=((BASIC_USER, BASIC_USER), (ADMIN_USER, ADMIN_USER), (SUPER_ADMIN_USER, SUPER_ADMIN_USER)))
     user = models.ForeignKey(Person, on_delete=models.CASCADE)
     group_chat = models.ForeignKey(GroupChat, on_delete=models.CASCADE)

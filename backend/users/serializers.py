@@ -1,10 +1,8 @@
 from django.core.mail import send_mail
 from rest_framework import serializers
-
 from backend.settings import PUBLIC_KEY_PERSON_ID, DOMAIN
 from cryptography.fernet import Fernet
-
-from chat.models import PrivateMessage
+from utils.drf_mixins import SerializerFieldsMixin
 from .models import Person, Friend
 from drf_queryfields import QueryFieldsMixin
 
@@ -25,27 +23,20 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return user
 
 
-class NestedUserSerializer(serializers.ModelSerializer):
+class NestedUserSerializer(QueryFieldsMixin, SerializerFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Person
-        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'password')
+        fields = ('id', 'email', 'username', 'phone', 'first_name', 'last_name', 'birthday', 'password')
         extra_kwargs = {
             'password': {'write_only': True}
         }
 
 
-class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
-    friends = NestedUserSerializer(many=True, required=False, read_only=True)
-
+class UserSerializer(NestedUserSerializer):
     class Meta(NestedUserSerializer.Meta):
-        fields = NestedUserSerializer.Meta.fields + ('friends',)
+        fields = NestedUserSerializer.Meta.fields
         depth = 2
 
-    def __init__(self, *args, short=False, **kwargs):
-        super(UserSerializer, self).__init__(*args, **kwargs)
-        if short:
-            if 'friends' in self.fields:
-                self.fields.pop('friends')
 
     def create(self, validated_data):
         user = super(UserSerializer, self).create(validated_data)
@@ -63,14 +54,11 @@ class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
         return user
 
 
-class FriendSerializer(serializers.ModelSerializer):
+class FriendSerializer(QueryFieldsMixin, SerializerFieldsMixin, serializers.ModelSerializer):
+    first = serializers.PrimaryKeyRelatedField(read_only=True)
+    second = serializers.PrimaryKeyRelatedField(queryset=Person.objects.all())
+
     class Meta:
         model = Friend
-        fields = ['first', 'second']
+        fields = ['id', 'first', 'second']
         depth = 1
-
-
-class PrivateMessageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PrivateMessage
-        fields = ['owner', 'text', 'chat', 'created_at', 'edited', 'edited_at']
