@@ -1,7 +1,7 @@
 from django.db.models import Q
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import renderers
+from rest_framework import renderers, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.filters import SearchFilter
@@ -18,8 +18,6 @@ from users.permissions import BelongToFriendship
 from .models import Person, Friend
 from .serializers import UserSerializer, FriendSerializer
 
-
-# TODO user search
 
 def activate_account(request, activate_link):
     '''
@@ -88,8 +86,8 @@ class UserDetailView(RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        following = set(Friend.objects.filter(first=instance).values_list('second', flat=True))
-        followers = set(Friend.objects.filter(second=instance).values_list('first', flat=True))
+        following = set(Friend.objects.filter(first=instance).values_list('second_user', flat=True))
+        followers = set(Friend.objects.filter(second=instance).values_list('first_user', flat=True))
         friends = following.intersection(followers)
         following = following.difference(friends)
         followers = followers.difference(friends)
@@ -126,7 +124,7 @@ class FriendListView(CreateAPIView, ListAPIView):
     (If you want to get person's followers, friend etc. you'd better request user's details)
     (To check relationship between users use check relationship view
     post:
-    creates one-way friendship from the token user to the second one
+    creates one-way friendship from the token user to the second_user
     '''
     serializer_class = FriendSerializer
     queryset = Friend.objects.all()
@@ -136,8 +134,18 @@ class FriendListView(CreateAPIView, ListAPIView):
         person = self.request.user
         return Friend.objects.filter(Q(first=person) | Q(second=person))
 
-    def perform_create(self, serializer):
-        serializer.save(first=self.request.user)
+    def create(self, request, *args, **kwargs):
+        request.data['first_user'] = str(request.user.id)
+        if request.data['first_user'] == request.data['second_user']:
+            return Response(status=HTTP_400_BAD_REQUEST, data="Can't create friendship to yourself")
+        serializer = self.get_serializer(data=request.data)
+        first_user_field = serializer.fields.fields['first_user']
+        first_user_field.read_only = False
+        first_user_field.queryset = Person.objects.all()
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class FriendDetailView(DestroyAPIView):
@@ -155,8 +163,8 @@ class FriendDeleteFriendshipToUser(GenericAPIView):
     '''
     delete:
     requires param:user_id to whom friendship should be deleted
-    (removing will be made in one way. So if users are friends and the first user deletes friendship to the second one,
-    second one will become the follower of the first). Returns updated relationship between users
+    (removing will be made in one way. So if users are friends and the first_user user deletes friendship to the second_user one,
+    second_user one will become the follower of the first_user). Returns updated relationship between users
     '''
     serializer_class = FriendSerializer
     queryset = Friend.objects.all()

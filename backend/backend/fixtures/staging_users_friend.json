@@ -3,10 +3,10 @@
   "model": "users.friend",
   "pk": 1,
   "fields": {
-    "first": [
+    "first_user": [
       "nikita3"
     ],
-    "second": [
+    "second_user": [
       "denis4"
     ]
   }
@@ -15,10 +15,10 @@
   "model": "users.friend",
   "pk": 2,
   "fields": {
-    "first": [
+    "first_user": [
       "denis4"
     ],
-    "second": [
+    "second_user": [
       "nikita3"
     ]
   }
@@ -27,10 +27,10 @@
   "model": "users.friend",
   "pk": 3,
   "fields": {
-    "first": [
+    "first_user": [
       "nikita3"
     ],
-    "second": [
+    "second_user": [
       "artem5"
     ]
   }
@@ -39,10 +39,10 @@
   "model": "users.friend",
   "pk": 4,
   "fields": {
-    "first": [
+    "first_user": [
       "artem5"
     ],
-    "second": [
+    "second_user": [
       "nikita3"
     ]
   }
@@ -51,10 +51,10 @@
   "model": "users.friend",
   "pk": 5,
   "fields": {
-    "first": [
+    "first_user": [
       "denis4"
     ],
-    "second": [
+    "second_user": [
       "artem5"
     ]
   }
@@ -63,10 +63,10 @@
   "model": "users.friend",
   "pk": 6,
   "fields": {
-    "first": [
+    "first_user": [
       "artem5"
     ],
-    "second": [
+    "second_user": [
       "denis4"
     ]
   }

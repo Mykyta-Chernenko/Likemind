@@ -38,16 +38,16 @@ class Person(AbstractUser):
 
 
 class Friend(models.Model):
-    first = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='first_set',
-                              verbose_name='friendship from')
-    second = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='second_set',
-                               verbose_name='friendhship to')
+    first_user = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='first_set',
+                                   verbose_name='friendship from')
+    second_user = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='second_set',
+                                    verbose_name='friendhship to')
 
     class Meta:
-        unique_together = [['first', 'second']]
+        unique_together = [['first_user', 'second_user']]
 
     def __str__(self):
-        return f'{self.first.username} to {self.second.username}'
+        return f'{self.first_user.username} to {self.second_user.username}'
 
     @classmethod
     def string_type(cls):

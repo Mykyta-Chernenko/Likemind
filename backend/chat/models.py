@@ -202,7 +202,7 @@ class AbstractPrivateChat(AbstractChat):
 
     def clean(self):
         if hasattr(self, 'first_user') and hasattr(self, 'second_user') and self.first_user.id > self.second_user.id:
-            raise ValidationError('The first user must have lower id than the second. Swap users')
+            raise ValidationError('The first_user user must have lower id than the second_user. Swap users')
 
     def get_users(self):
         return [self.first_user, self.second_user]

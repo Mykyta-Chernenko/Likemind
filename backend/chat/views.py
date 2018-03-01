@@ -11,7 +11,7 @@ from rest_framework.generics import CreateAPIView, ListAPIView, GenericAPIView, 
     DestroyAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.utils.urls import replace_query_param
 
 from chat.consts import MESSAGE_TYPE_TO_CHAT_TYPE
@@ -22,6 +22,7 @@ from chat.serializers import PrivateChatSerializer, PrivateMessageSerializer, En
     GroupMessageSerializer
 from files.permissions import UserBelongToChat
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatVideoSerializer, ChatAudioSerializer
+from users.models import Person
 from utils.consts import TIME_TZ_FORMAT
 
 MESSAGE_MAX_NUMBER = 1000
@@ -45,10 +46,21 @@ class PrivateChatList(CreateAPIView, ListAPIView):
     def get_queryset(self):
         return PrivateChat.objects.filter(Q(first_user=self.request.user) | Q(second_user=self.request.user))
 
-    def perform_create(self, serializer):
-        first, second = self.request.user, serializer.validated_data['second_user']
-        first, serializer.validated_data['second_user'] = (first, second) if first.id < second.id else (second, first)
-        serializer.save(first_user=first)
+    def create(self, request, *args, **kwargs):
+        try:
+            first, second = request.user.id, int(request.data['second_user'])
+        except (ValueError, TypeError):
+            return Response(status=HTTP_400_BAD_REQUEST, data='second_user must be int')
+        request.data['first_user'], request.data['second_user'] = (first, second) if first < second else (
+            second, first)
+        serializer = self.get_serializer(data=request.data)
+        first_user_field = serializer.fields.fields['first_user']
+        first_user_field.read_only = False
+        first_user_field.queryset = Person.objects.all()
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class Message():

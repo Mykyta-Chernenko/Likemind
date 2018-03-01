@@ -55,10 +55,10 @@ class UserSerializer(NestedUserSerializer):
 
 
 class FriendSerializer(QueryFieldsMixin, SerializerFieldsMixin, serializers.ModelSerializer):
-    first = serializers.PrimaryKeyRelatedField(read_only=True)
-    second = serializers.PrimaryKeyRelatedField(queryset=Person.objects.all())
+    first_user = serializers.PrimaryKeyRelatedField(read_only=True)
+    second_user = serializers.PrimaryKeyRelatedField(queryset=Person.objects.all())
 
     class Meta:
         model = Friend
-        fields = ['id', 'first', 'second']
+        fields = ['id', 'first_user', 'second_user']
         depth = 1
