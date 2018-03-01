@@ -22,7 +22,7 @@ from chat.serializers import PrivateChatSerializer, PrivateMessageSerializer, En
     GroupMessageSerializer
 from files.permissions import UserBelongToChat
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatVideoSerializer, ChatAudioSerializer
-from utils.constants import TIME_TZ_FORMAT
+from utils.consts import TIME_TZ_FORMAT
 
 MESSAGE_MAX_NUMBER = 1000
 DEFAULT_MESSAGE_NUMBER = 20

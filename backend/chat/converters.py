@@ -1,4 +1,6 @@
-from chat.consts import CHAT_TYPES
+from chat.models import EncryptedPrivateChat, GroupChat, PrivateChat
+
+CHAT_TYPES = {model.string_type(): model for model in (PrivateChat, GroupChat, EncryptedPrivateChat)}
 
 
 class ChatTypeConverter:

@@ -1,7 +1,8 @@
 from django.conf import settings
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management import BaseCommand, CommandError
-from django.db.models import FileField#, get_app, get_models, get_model
+from django.db.models import FileField  # , get_app, get_models, get_model
 from django.apps import apps as django_apps
 from optparse import make_option
 import os
@@ -18,18 +19,15 @@ class Command(BaseCommand):
             u'Example: \n./manage.py save_staging auth \n'
             u'./manage.py save_staging auth.User\n')
 
-
     def add_arguments(self, parser):
         parser.add_argument('app_labels', nargs='+')
-
 
     def handle(self, *args, **options):
         if not settings.FIXTURE_DIRS:
             raise CommandError('Add fixtures folder for project root to FIXTURE_DIRS for saving apps not from project')
 
-        env_prefix = '' # some legacy
+        env_prefix = ''  # some legacy
         app_labels = options['app_labels']
-
 
         for app_label in app_labels:
             try:
@@ -47,19 +45,22 @@ class Command(BaseCommand):
                 os.makedirs(fixtures_dir)
 
             for model in models:
-                print ('processing model', model)
+                print('processing model', model)
                 meta = model._meta
                 model_name = '%s.%s' % (meta.app_label, meta.object_name)
 
                 if not model.objects.exists():
                     continue
+                app_model_name = '%s_%s' % (meta.app_label.lower(),
+                                            meta.object_name.lower())
+                if issubclass(model, AbstractBaseUser):
+                    app_model_name = '0_%s' % app_model_name
 
-                fixtures_path = '%s/%sstaging_%s_%s.json' % (fixtures_dir,
-                                                             env_prefix,
-                                                             meta.app_label.lower(),
-                                                             meta.object_name.lower())
+                fixtures_path = '%s/%sstaging_%s.json' % (fixtures_dir,
+                                                          env_prefix,
+                                                          app_model_name)
                 self.move_files(model)
-                print ('saving %s' % model_name)
+                print('saving %s' % model_name)
                 print(fixtures_path)
                 subprocess.call(['python', 'manage.py', 'dumpdata', model_name, '--natural-foreign', '--indent=2'],
                                 stdout=open(fixtures_path, 'w'))

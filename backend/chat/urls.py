@@ -2,7 +2,7 @@ from django.urls import path, register_converter
 
 from chat.views import PrivateChatList, PrivateMessageList, PrivateMessageDetail, EncryptedPrivateMessageList, \
     GroupMessageList, ChatContent
-from files.converters import ChatTypeConverter
+from chat.converters import ChatTypeConverter
 
 register_converter(ChatTypeConverter, 'chat_type')
 urlpatterns = [

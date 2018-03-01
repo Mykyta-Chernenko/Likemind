@@ -14,8 +14,6 @@ from chat.consts import LAST_MESSAGE, CHAT_TEXT_MESSAGE, PRIVATE_CHAT
 from chat.models import PrivateChat, PrivateMessage
 from users.consts import USER
 from users.models import Person, Friend
-from utils.constants import TIME_TZ_FORMAT
-from utils.django_annoying import get_object_or_None
 
 CONSUMER_CHAT_MESSAGE = 'chat.message'
 CONSUMER_USER_EVENT = 'user.event'

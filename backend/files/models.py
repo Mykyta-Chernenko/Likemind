@@ -47,8 +47,7 @@ class ChatFile(_ChatFile):
 
     @classmethod
     def get_field(cls):
-        from files.consts import FILE_MESSAGE_FIELD
-        return FILE_MESSAGE_FIELD
+        return cls.file.field.name
 
     @classmethod
     def get_serializer_class(cls):
@@ -66,8 +65,7 @@ class ChatImage(_ChatFile):
 
     @classmethod
     def get_field(cls):
-        from files.consts import IMAGE_MESSAGE_FIELD
-        return IMAGE_MESSAGE_FIELD
+        return cls.image.field.name
 
     @classmethod
     def get_serializer_class(cls):
@@ -98,8 +96,7 @@ class ChatAudio(_ChatFile):
 
     @classmethod
     def get_field(cls):
-        from files.consts import AUDIO_MESSAGE_FIELD
-        return AUDIO_MESSAGE_FIELD
+        return cls.audio.field.name
 
     @classmethod
     def get_serializer_class(cls):
@@ -127,8 +124,7 @@ class ChatVideo(_ChatFile):
 
     @classmethod
     def get_field(cls):
-        from files.consts import VIDEO_MESSAGE_FIELD
-        return VIDEO_MESSAGE_FIELD
+        return cls.video.field.name
 
     @classmethod
     def get_serializer_class(cls):

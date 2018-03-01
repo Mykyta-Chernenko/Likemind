@@ -6,9 +6,8 @@ from attr import dataclass
 from chat.consts import CHAT_TEXT_MESSAGE
 from chat.consumers import CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT
 from files.consts import CHAT_IMAGE_MESSAGE, CHAT_VIDEO_MESSAGE, CHAT_FILE_MESSAGE, CHAT_AUDIO_MESSAGE
-from utils.constants import TIME_TZ_FORMAT
+from utils.consts import TIME_TZ_FORMAT
 
-action_types = [CHAT_TEXT_MESSAGE, CHAT_IMAGE_MESSAGE, CHAT_VIDEO_MESSAGE, CHAT_FILE_MESSAGE, CHAT_AUDIO_MESSAGE]
 event_types = [CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT]
 
 

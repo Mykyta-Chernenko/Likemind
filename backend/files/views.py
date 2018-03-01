@@ -8,12 +8,13 @@ from backend.settings import _redis as r
 from asgiref.sync import async_to_sync
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.generics import CreateAPIView, ListAPIView, get_object_or_404, DestroyAPIView, RetrieveAPIView
-from chat.consts import REVERSE_CHAT_TYPES, LAST_MESSAGE
+from chat.consts import  LAST_MESSAGE
 from chat.consumers import CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT
 from files.consts import FILE_MESSAGE_FIELD, IMAGE_MESSAGE_FIELD, AUDIO_MESSAGE_FIELD, VIDEO_MESSAGE_FIELD
 from files.models import ChatFile, ChatImage, ChatAudio, ChatVideo
 from files.permissions import UserBelongToChat
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatAudioSerializer, ChatVideoSerializer
+from utils.consts import MODEL_FROM_STRING
 from utils.websocket_utils import WebSocketEvent, ActionType, ChatFileMessageAction, ChatImageMessageAction, \
     ChatAudioMessageAction, ChatVideoMessageAction
 
@@ -53,7 +54,7 @@ class _ChatFileList(CreateAPIView, ListAPIView):
         content = f'file can be downloaded via link <a href="{file}"></a>'
         channel_layer = channels.layers.get_channel_layer()
         model = kwargs.get('chat_model')
-        model_name = REVERSE_CHAT_TYPES[model]
+        model_name = MODEL_FROM_STRING[model]
         model_string_name = f'{model_name}-{object_id}'
         action = self.ActionType(id=id, chat_type=model_name, chat=chat['id'], owner=request.user.id,
                                  created_at=time, **{self.field: content})
