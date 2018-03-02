@@ -4,18 +4,19 @@ class SerializerFieldsMixin(object):
     delimiter = ','
 
     def __init__(self, *args, **kwargs):
-        include_field_names = kwargs.pop('include_fields',None)
-        exclude_field_names = kwargs.pop('exclude_fields',None)
+        include_field_names = kwargs.pop('include_fields', None)
+        exclude_field_names = kwargs.pop('exclude_fields', None)
         super(SerializerFieldsMixin, self).__init__(*args, **kwargs)
         try:
             request = self.context['request']
             method = request.method
+
+            if method != 'GET':
+                return
         except (AttributeError, TypeError, KeyError):
             # The serializer was not initialized with request context.
-            return
+            pass
 
-        if method != 'GET':
-            return
         if include_field_names:
             include_field_names = set(include_field_names.split(self.delimiter))
         if exclude_field_names:

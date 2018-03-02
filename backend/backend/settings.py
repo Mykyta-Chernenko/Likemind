@@ -206,7 +206,7 @@ FIXTURE_DIRS = (
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-_redis = redis.Redis(host='redis', port=6379, db=1)
+r = redis.Redis(host='redis', port=6379, db=1)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

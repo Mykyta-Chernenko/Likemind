@@ -1,9 +1,10 @@
 import json
-from collections import OrderedDict
 from itertools import chain
-
 from datetime import datetime
+import channels
+from asgiref.sync import async_to_sync
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.shortcuts import render
 from rest_framework import status
@@ -14,16 +15,20 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.utils.urls import replace_query_param
 
-from chat.consts import MESSAGE_TYPE_TO_CHAT_TYPE
+from chat.consts import MESSAGE_TYPE_TO_CHAT_TYPE, LAST_MESSAGE
+from chat.consumers import CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT
 from chat.models import PrivateChat, PrivateMessage, EncryptedPrivateMessage, GroupMessage
 from chat.paginations import MessageListPagination
 from chat.permissions import MessageBelongToChatAndUserIsOwner
 from chat.serializers import PrivateChatSerializer, PrivateMessageSerializer, EncryptedPrivateMessageSerializer, \
     GroupMessageSerializer
-from files.permissions import UserBelongToChat
+from files.permissions import UserBelongToChatList
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatVideoSerializer, ChatAudioSerializer
 from users.models import Person
 from utils.consts import TIME_TZ_FORMAT
+from utils.websocket_utils import WebSocketEvent, ChatTextMessageAction, ChatTextMessageUpdateAction, \
+    ChatTextMessageDeleteAction
+from backend.settings import r
 
 MESSAGE_MAX_NUMBER = 1000
 DEFAULT_MESSAGE_NUMBER = 20
@@ -107,7 +112,83 @@ class GroupMessageList(MessageList):
 
 
 class MessageDetail(UpdateAPIView, DestroyAPIView, RetrieveAPIView, Message):
-    pass
+    UpdateActionType = ChatTextMessageUpdateAction
+    DeleteActionType = ChatTextMessageDeleteAction
+
+    def get_chat_model(self):
+        raise NotImplementedError
+
+    def update(self, request, *args, **_kwargs):
+        result = super(MessageDetail, self).update(request, *args, **_kwargs)
+        obj = self.get_object()
+        last = obj == self.queryset.latest('created_at')
+        channel_layer = channels.layers.get_channel_layer()
+        chat = obj.chat
+        model_string_name = f'{chat.string_type()}-{chat.id}'
+        action = self.UpdateActionType(id=obj.id, chat_type=chat.string_type(), chat=chat.id, owner=obj.owner.id,
+                                       string_type=obj.string_type(), created_at=obj.created_at, text=obj.text,
+                                       edited_at=obj.edited_at, edited=obj.edited)
+        chat_data = WebSocketEvent(action, type=CONSUMER_CHAT_MESSAGE).to_dict_flat()
+        async_to_sync(channel_layer.group_send)(model_string_name, chat_data)
+
+        if last:
+            user_data = WebSocketEvent(action, type=CONSUMER_USER_EVENT).to_dict()
+            try:
+                obj = self.queryset.latest('created_at')
+            except ObjectDoesNotExist:
+                obj = None
+            new_action = self.DeleteActionType(id=obj.id, chat_type=chat.string_type(), chat=chat.id,
+                                               owner=obj.owner.id,
+                                               string_type=obj.string_type(), created_at=obj.created_at, text=obj.text,
+                                               edited_at=obj.edited_at, edited=obj.edited)
+            new_user_data = WebSocketEvent(new_action, type=CONSUMER_USER_EVENT).to_dict()
+            for user in chat.get_users():
+                for data in (user_data, new_user_data):
+                    if data:
+                        async_to_sync(channel_layer.group_send)(f'user-{user.id}', data)
+            redis_last_message_name = f'{model_string_name}-{LAST_MESSAGE}'
+            r.hmset(redis_last_message_name,
+                    WebSocketEvent(new_action).to_dict_flat())
+
+        return result
+
+    def destroy(self, request, *args, **kwargs):
+        obj = self.get_object()
+        last = obj == self.queryset.latest('created_at')
+        result = super(MessageDetail, self).destroy(request, *args, **kwargs)
+        channel_layer = channels.layers.get_channel_layer()
+        chat = obj.chat
+        model_string_name = f'{chat.string_type()}-{chat.id}'
+        action = self.DeleteActionType(id=obj.id, chat_type=chat.string_type(), chat=chat.id, owner=obj.owner.id,
+                                       string_type=obj.string_type(), created_at=obj.created_at, text=obj.text,
+                                       edited_at=obj.edited_at, edited=obj.edited)
+        chat_data = WebSocketEvent(action, type=CONSUMER_CHAT_MESSAGE).to_dict_flat()
+        async_to_sync(channel_layer.group_send)(model_string_name, chat_data)
+
+        if last:
+            user_data = WebSocketEvent(action, type=CONSUMER_USER_EVENT).to_dict()
+            try:
+                obj = self.queryset.latest('created_at')
+                new_action = self.DeleteActionType(id=obj.id, chat_type=chat.string_type(), chat=chat.id,
+                                                   owner=obj.owner.id,
+                                                   string_type=obj.string_type(), created_at=obj.created_at,
+                                                   text=obj.text, edited=obj.edited, edited_at=obj.edited_at)
+                new_user_data = WebSocketEvent(new_action, type=CONSUMER_USER_EVENT).to_dict()
+            except ObjectDoesNotExist:
+                new_user_data = None
+                new_action = None
+
+            for user in chat.get_users():
+                for data in (user_data, new_user_data):
+                    if data:
+                        async_to_sync(channel_layer.group_send)(f'user-{user.id}', data)
+            redis_last_message_name = f'{model_string_name}-{LAST_MESSAGE}'
+            if new_action:
+                r.hmset(redis_last_message_name,
+                        WebSocketEvent(new_action).to_dict_flat())
+            else:
+                r.delete(redis_last_message_name)
+        return result
 
 
 class PrivateMessageDetail(MessageDetail):
@@ -129,7 +210,7 @@ class ChatContent(ListAPIView):
     page_size = 20
     max_page_size = 200
     page_query_param = 'date_from'
-    permission_classes = [IsAuthenticated, UserBelongToChat]
+    permission_classes = [IsAuthenticated, UserBelongToChatList]
 
     def get_chat(self, **kwargs):
         if kwargs:
@@ -173,7 +254,6 @@ class ChatContent(ListAPIView):
                 content[ind] = object.all()[:page_size]
         messages, files, images, videos, audios = content
         _kwargs = {
-            'context': self.get_serializer_context(),
             'many': True,
             'exclude_fields': 'chat'
         }

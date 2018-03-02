@@ -2,26 +2,28 @@ import datetime
 from copy import deepcopy
 
 import channels
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.permissions import IsAuthenticated
 
-from backend.settings import _redis as r
+from backend.settings import r as r
 from asgiref.sync import async_to_sync
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.generics import CreateAPIView, ListAPIView, get_object_or_404, DestroyAPIView, RetrieveAPIView
-from chat.consts import  LAST_MESSAGE
+from chat.consts import LAST_MESSAGE
 from chat.consumers import CONSUMER_CHAT_MESSAGE, CONSUMER_USER_EVENT
 from files.consts import FILE_MESSAGE_FIELD, IMAGE_MESSAGE_FIELD, AUDIO_MESSAGE_FIELD, VIDEO_MESSAGE_FIELD
 from files.models import ChatFile, ChatImage, ChatAudio, ChatVideo
-from files.permissions import UserBelongToChat
+from files.permissions import UserBelongToChatList, UserBelongToChatDetail
 from files.serializers import ChatFileSerializer, ChatImageSerializer, ChatAudioSerializer, ChatVideoSerializer
 from utils.consts import MODEL_FROM_STRING
 from utils.websocket_utils import WebSocketEvent, ActionType, ChatFileMessageAction, ChatImageMessageAction, \
-    ChatAudioMessageAction, ChatVideoMessageAction
+    ChatAudioMessageAction, ChatVideoMessageAction, ChatFileMessageDeleteAction, ChatImageMessageDeleteAction, \
+    ChatVideoMessageDeleteAction, ChatAudioMessageDeleteAction
 
 
 class _ChatFileList(CreateAPIView, ListAPIView):
     http_method_names = ['get', 'post']
-    permission_classes = [IsAuthenticated, UserBelongToChat]
+    permission_classes = [IsAuthenticated, UserBelongToChatList]
     serializer_class = None
     queryset = None
     ActionType = None
@@ -51,12 +53,14 @@ class _ChatFileList(CreateAPIView, ListAPIView):
         chat = result.data['chat']
         file = result.data[self.field]
         id = result.data['id']
-        content = f'file can be downloaded via link <a href="{file}"></a>'
+        content = file
         channel_layer = channels.layers.get_channel_layer()
-        model = kwargs.get('chat_model')
-        model_name = MODEL_FROM_STRING[model]
-        model_string_name = f'{model_name}-{object_id}'
-        action = self.ActionType(id=id, chat_type=model_name, chat=chat['id'], owner=request.user.id,
+        model_name = kwargs.get('chat_model')
+        model = MODEL_FROM_STRING[model_name]
+        model_string_name = f'{model.string_type()}-{object_id}'
+        obj = self.queryset.get(pk=id)
+        action = self.ActionType(id=id, chat_type=model_name, chat=int(chat['id']), owner=request.user.id,
+                                 string_type=obj.string_type(),
                                  created_at=time, **{self.field: content})
 
         chat_data = WebSocketEvent(action, type=CONSUMER_CHAT_MESSAGE).to_dict_flat()
@@ -146,10 +150,50 @@ class ChatVideoList(_ChatFileList):
 
 
 class _ChatFileDetail(DestroyAPIView, RetrieveAPIView):
-    http_method_names = ['get', 'post']
-    permission_classes = [IsAuthenticated, UserBelongToChat]
+    http_method_names = ['get', 'delete']
+    permission_classes = [IsAuthenticated, UserBelongToChatDetail]
     serializer_class = None
     queryset = None
+    DeleteActionType = None
+    field = None
+
+    def destroy(self, request, *args, **kwargs):
+        obj = self.get_object()
+        last = obj == self.queryset.latest('created_at')
+        result = super(_ChatFileDetail, self).destroy(request, *args, **kwargs)
+        channel_layer = channels.layers.get_channel_layer()
+        chat = obj.chat
+        model_string_name = f'{chat.string_type()}-{chat.id}'
+        action = self.DeleteActionType(id=obj.id, chat_type=chat.string_type(), chat=chat.id, owner=obj.owner.id,
+                                       string_type=obj.string_type(), created_at=obj.created_at,
+                                       **{self.field: str(getattr(obj, self.field).url)})
+        chat_data = WebSocketEvent(action, type=CONSUMER_CHAT_MESSAGE).to_dict_flat()
+        async_to_sync(channel_layer.group_send)(model_string_name, chat_data)
+
+        if last:
+            user_data = WebSocketEvent(action, type=CONSUMER_USER_EVENT).to_dict()
+            try:
+                obj = self.queryset.latest('created_at')
+                new_action = self.DeleteActionType(id=obj.id, chat_type=chat.string_type(), chat=chat.id,
+                                                   owner=obj.owner.id,
+                                                   string_type=obj.string_type(), created_at=obj.created_at,
+                                                   **{self.field: result.data[self.field]})
+                new_user_data = WebSocketEvent(new_action, type=CONSUMER_USER_EVENT).to_dict()
+            except ObjectDoesNotExist:
+                new_user_data = None
+                new_action = None
+
+            for user in chat.get_users():
+                for data in (user_data, new_user_data):
+                    if data:
+                        async_to_sync(channel_layer.group_send)(f'user-{user.id}', data)
+            redis_last_message_name = f'{model_string_name}-{LAST_MESSAGE}'
+            if new_action:
+                r.hmset(redis_last_message_name,
+                        WebSocketEvent(new_action).to_dict_flat())
+            else:
+                r.delete(redis_last_message_name)
+        return result
 
 
 class ChatFileDetail(_ChatFileDetail):
@@ -162,6 +206,9 @@ class ChatFileDetail(_ChatFileDetail):
     '''
     serializer_class = ChatFileSerializer
     queryset = ChatFile.objects.all()
+    DeleteActionType = ChatFileMessageDeleteAction
+    field = 'file'
+
 
 class ChatImageDetail(_ChatFileDetail):
     '''
@@ -173,6 +220,9 @@ class ChatImageDetail(_ChatFileDetail):
     '''
     serializer_class = ChatImageSerializer
     queryset = ChatImage.objects.all()
+    DeleteActionType = ChatImageMessageDeleteAction
+    field = 'image'
+
 
 class ChatVideoDetail(_ChatFileDetail):
     '''
@@ -184,6 +234,9 @@ class ChatVideoDetail(_ChatFileDetail):
     '''
     serializer_class = ChatVideoSerializer
     queryset = ChatVideo.objects.all()
+    DeleteActionType = ChatVideoMessageDeleteAction
+    field = 'video'
+
 
 class ChatAudioDetail(_ChatFileDetail):
     '''
@@ -195,3 +248,5 @@ class ChatAudioDetail(_ChatFileDetail):
     '''
     serializer_class = ChatAudioSerializer
     queryset = ChatAudio.objects.all()
+    DeleteActionType = ChatAudioMessageDeleteAction
+    field = 'audio'

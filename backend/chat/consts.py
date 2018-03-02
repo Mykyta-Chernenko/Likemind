@@ -13,6 +13,8 @@ GROUP_MESSAGE = GroupMessage.string_type()
 ENCRYPTED_PRIVATE_MESSAGE = EncryptedPrivateMessage.string_type()
 
 CHAT_TEXT_MESSAGE = 'chat-text-message'
+CHAT_UPDATE_TEXT_MESSAGE = 'chat-update-text-message'
+CHAT_DELETE_TEXT_MESSAGE = 'chat-delete-text-message'
 
 TEXT_MESSAGE_FIELD = AbstractMessage.get_field()
 

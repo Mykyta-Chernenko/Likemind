@@ -6,7 +6,7 @@ from time import sleep
 from asgiref.sync import async_to_sync
 from django.core.exceptions import ObjectDoesNotExist
 
-from backend.settings import _redis as r
+from backend.settings import r
 from channels.generic.websocket import JsonWebsocketConsumer
 from django.db.models import Q
 
@@ -71,7 +71,8 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
             time = datetime.datetime.now()
             from utils.websocket_utils import ChatTextMessageAction
             action = ChatTextMessageAction(id=pm.id, chat_type=PRIVATE_CHAT, chat=pc.id, owner=from_user.id,
-                                           created_at=time, text=content, edited=False, edited_at=time)
+                                           created_at=time, string_type=PrivateMessage.string_type(), text=content,
+                                           edited=False, edited_at=time)
             from utils.websocket_utils import WebSocketEvent
             chat_data = WebSocketEvent(action=action, type=CONSUMER_CHAT_MESSAGE).to_dict_flat()
             user_data = WebSocketEvent(action=action, type=CONSUMER_USER_EVENT).to_dict()
@@ -88,14 +89,12 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
             async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
             raise e
 
-
     def disconnect(self, message):
         from_user, to_user = self.scope['user'], self.scope['to_user']
         pc, created = self._get_private_chat(from_user, to_user)
         print(f'chat {pc.id} disconnected from {from_user} to {to_user}')
         group_name = f'{PRIVATE_CHAT}-{pc.id}'
         async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
-
 
     def _get_private_chat(self, from_user, to_user):
         created = False
@@ -105,7 +104,6 @@ class PrivateChatConsumer(JsonWebsocketConsumer):
             one, two = (from_user, to_user) if from_user.pk < to_user.pk else (to_user, from_user)
             pc, created = PrivateChat.objects.get_or_create(first_user=one, second_user=two)
         return pc, created
-
 
     def chat_message(self, event):
         print('chat message')

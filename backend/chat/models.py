@@ -7,7 +7,7 @@ from django.db import models
 
 from files.models import ChatFile, ChatVideo, ChatImage, ChatAudio
 from users.models import Person
-from backend.settings import _redis as r
+from backend.settings import r
 from utils.models_methods import _string_type
 
 
@@ -169,7 +169,7 @@ class AbstractChat(models.Model):
                 extra_fields['edited_at'] = obj.edited_at
             action = obj.get_action_class()(
                 id=obj.id, chat_type=model_name, chat=obj.chat.id,
-                owner=obj.owner.id, created_at=obj.created_at,
+                owner=obj.owner.id, created_at=obj.created_at, string_type=obj.string_type(),
                 **extra_fields)
             model_string_name = f'{model_string_name}-{obj.chat.id}'
             redis_last_message_name = f'{model_string_name}-{LAST_MESSAGE}'
